@@ -1,0 +1,39 @@
+﻿@model List<Abstracciones.Modelos.ProductoDto>
+
+@{
+    ViewData["Title"] = "Productos Inactivos";
+}
+
+<h2>Productos Inactivos</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>SKU</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.SKU</td>
+                <td>@item.Nombre</td>
+                <td>@item.Precio</td>
+                <td>
+                    <form asp-action="Activar" asp-route-id="@item.ProductoId"
+                          method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Activar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Volver a Activos</a>
