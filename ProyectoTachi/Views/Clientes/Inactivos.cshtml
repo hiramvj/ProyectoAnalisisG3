@@ -1,0 +1,39 @@
+@model List<Abstracciones.Modelos.ClienteDto>
+
+@{
+    ViewData["Title"] = "Clientes Inactivos";
+}
+
+<h2>Clientes Inactivos</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Identificación</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Identificacion</td>
+                <td>@item.NombreCompleto</td>
+                <td>@item.Correo</td>
+                <td>
+                    <form asp-action="Activar" asp-route-id="@item.ClienteId"
+                          method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Activar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Volver a Activos</a>

@@ -21,12 +21,14 @@ namespace DA.Contexto
         }
 
         public DbSet<ProductoDto> Productos { get; set; }
+        public DbSet<ClienteDto> Clientes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ProductoDto>().HasKey(p => p.ProductoId);
+            modelBuilder.Entity<ClienteDto>().HasKey(c => c.ClienteId);
         }
     }
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>

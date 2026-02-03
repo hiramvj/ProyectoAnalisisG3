@@ -1,0 +1,44 @@
+@model List<Abstracciones.Modelos.ClienteDto>
+
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<h2>Clientes Activos</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nuevo Cliente</a>
+    <a asp-action="Inactivos" class="btn btn-secondary">Ver Inactivos</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Identificación</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Identificacion</td>
+                <td>@item.NombreCompleto</td>
+                <td>@item.Correo</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-warning">Editar</a>
+
+                    <form asp-action="Desactivar" asp-route-id="@item.ClienteId"
+                          method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Desactivar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
