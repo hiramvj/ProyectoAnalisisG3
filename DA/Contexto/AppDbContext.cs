@@ -1,5 +1,10 @@
-﻿using DA.Entidades;
+﻿using Abstracciones.Modelos;
+using DA.Entidades;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,57 +13,31 @@ using System.Threading.Tasks;
 
 namespace DA.Contexto
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<IdentityUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<Producto> Productos => Set<Producto>();
+        public DbSet<ProductoDto> Productos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Producto>(entity =>
-            {
-                // Tabla
-                entity.ToTable("Producto", "dbo");
+            modelBuilder.Entity<ProductoDto>().HasKey(p => p.ProductoId);
+        }
+    }
+    public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+    {
+        public AppDbContext CreateDbContext(string[] args)
+        {
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlServer(@"Server=DESKTOP-R7KSH3B\SQLEXPRESS;Database=DistribuidoraTachiDB;Trusted_Connection=True;TrustServerCertificate=True;")
+                .Options;
 
-                // Primary Key
-                entity.HasKey(p => p.ProductoId);
-
-                // Campos
-                entity.Property(p => p.SKU)
-                      .IsRequired()
-                      .HasMaxLength(40);
-
-                entity.Property(p => p.Nombre)
-                      .IsRequired()
-                      .HasMaxLength(150);
-
-                entity.Property(p => p.CategoriaProductoId)
-                      .IsRequired(false);
-
-                entity.Property(p => p.UnidadMedidaId)
-                      .IsRequired();
-
-                entity.Property(p => p.Costo)
-                      .HasColumnType("decimal(18,2)");
-
-                entity.Property(p => p.Precio)
-                      .HasColumnType("decimal(18,2)");
-
-                entity.Property(p => p.StockMinimo)
-                      .HasColumnType("decimal(18,2)");
-
-                entity.Property(p => p.Activo)
-                      .IsRequired();
-
-                entity.Property(p => p.FechaCreacion)
-                      .IsRequired();
-            });
+            return new AppDbContext(options);
         }
     }
 }

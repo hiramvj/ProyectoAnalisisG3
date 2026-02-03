@@ -68,20 +68,26 @@ namespace ProyectoTachi.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var dto = await _flujo.ObtenerPorIdAsync(id);
-            if (dto == null)
-                return NotFound();
-
+            if (dto == null) return NotFound();
             return View(dto);
         }
 
         // EDIT (POST)
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductoDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            await _flujo.EditarAsync(dto);
+            var ok = await _flujo.EditarAsync(dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar el producto.");
+                return View(dto);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

@@ -38,11 +38,10 @@ namespace Flujo
         public async Task<bool> EditarAsync(ProductoDto producto)
         {
             if (producto.ProductoId <= 0)
-                throw new Exception("ProductoId inválido para editar.");
-
-            ValidarProducto(producto, esNuevo: false);
+                throw new Exception("ProductoId inválido.");
 
             var filas = await _productoDA.ActualizarAsync(producto);
+
             return filas > 0;
         }
 

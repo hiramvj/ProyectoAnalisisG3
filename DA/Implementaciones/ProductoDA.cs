@@ -20,22 +20,20 @@ namespace DA.Implementaciones
 
         public async Task<List<ProductoDto>> ListarPorEstadoAsync(bool activo)
         {
-            var entidades = await _db.Productos
+            return await _db.Productos
                 .FromSqlInterpolated($"EXEC dbo.sp_Producto_ListarPorEstado @Activo={activo}")
                 .AsNoTracking()
                 .ToListAsync();
-
-            return entidades.Select(MapToDto).ToList();
         }
 
         public async Task<ProductoDto?> ObtenerPorIdAsync(int productoId)
         {
-            var entidad = await _db.Productos
+            var lista = await _db.Productos
                 .FromSqlInterpolated($"EXEC dbo.sp_Producto_ObtenerPorId @ProductoId={productoId}")
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            return entidad == null ? null : MapToDto(entidad);
+            return lista.FirstOrDefault();
         }
 
         public async Task<int> InsertarAsync(ProductoDto p)
@@ -76,7 +74,8 @@ namespace DA.Implementaciones
             if (cmd.Connection!.State != System.Data.ConnectionState.Open)
                 await cmd.Connection.OpenAsync();
 
-            return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            var result = await cmd.ExecuteScalarAsync(); 
+            return Convert.ToInt32(result);
         }
 
         public async Task<int> CambiarEstadoAsync(int productoId, bool activo)
