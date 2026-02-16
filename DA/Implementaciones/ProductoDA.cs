@@ -48,6 +48,10 @@ namespace DA.Implementaciones
             cmd.Parameters.Add(new SqlParameter("@UnidadMedidaId", p.UnidadMedidaId));
             cmd.Parameters.Add(new SqlParameter("@Costo", p.Costo));
             cmd.Parameters.Add(new SqlParameter("@Precio", p.Precio));
+
+            
+            cmd.Parameters.Add(new SqlParameter("@Stock", p.Stock));
+
             cmd.Parameters.Add(new SqlParameter("@StockMinimo", p.StockMinimo));
 
             if (cmd.Connection!.State != System.Data.ConnectionState.Open)
@@ -69,12 +73,16 @@ namespace DA.Implementaciones
             cmd.Parameters.Add(new SqlParameter("@UnidadMedidaId", p.UnidadMedidaId));
             cmd.Parameters.Add(new SqlParameter("@Costo", p.Costo));
             cmd.Parameters.Add(new SqlParameter("@Precio", p.Precio));
+
+            
+            cmd.Parameters.Add(new SqlParameter("@Stock", p.Stock));
+
             cmd.Parameters.Add(new SqlParameter("@StockMinimo", p.StockMinimo));
 
             if (cmd.Connection!.State != System.Data.ConnectionState.Open)
                 await cmd.Connection.OpenAsync();
 
-            var result = await cmd.ExecuteScalarAsync(); 
+            var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result);
         }
 

@@ -1,5 +1,5 @@
-﻿CREATE   PROCEDURE dbo.sp_Producto_ListarPorEstado
-    @Activo BIT
+﻿CREATE PROCEDURE dbo.sp_Producto_ListarPorEstado
+    @Activo bit
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -12,10 +12,10 @@ BEGIN
         UnidadMedidaId,
         Costo,
         Precio,
+        Stock,
         StockMinimo,
         Activo,
         FechaCreacion
     FROM dbo.Producto
-    WHERE Activo = @Activo
-    ORDER BY Nombre;
+    WHERE Activo = @Activo;
 END

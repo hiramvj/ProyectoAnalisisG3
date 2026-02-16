@@ -1,38 +1,56 @@
-﻿@model List<Abstracciones.Modelos.ProductoDto>
-
-@{
-    ViewData["Title"] = "Productos";
-}
-
-<h2>Productos Activos</h2>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Nuevo Producto</a>
-</p>
-
-<table class="table table-bordered">
+﻿<table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>SKU</th>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Acciones</th>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Stock</th>
+            <th>Precio Unidad</th>
+            <th>Estado</th>
+            <th class="text-center">Acciones</th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
+            var bajoStock = item.Stock <= item.StockMinimo;
+
             <tr>
                 <td>@item.SKU</td>
                 <td>@item.Nombre</td>
-                <td>@item.Precio</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-sm btn-warning">Editar</a>
 
-                    <form asp-action="Desactivar" asp-route-id="@item.ProductoId"
-                          method="post" style="display:inline">
+                <td class="@(bajoStock ? "text-danger fw-bold" : "")">
+                    @item.Stock
+                </td>
+
+                <td>₡ @item.Precio.ToString("N2")</td>
+
+                <td>
+                    @if (bajoStock)
+                    {
+                        <span class="badge bg-warning text-dark">Bajo Stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Disponible</span>
+                    }
+                </td>
+
+                <td class="text-center">
+                    <a asp-action="Edit"
+                       asp-route-id="@item.ProductoId"
+                       class="btn btn-sm btn-outline-primary">
+                        Editar
+                    </a>
+
+                    <form asp-action="Desactivar"
+                          asp-route-id="@item.ProductoId"
+                          method="post"
+                          style="display:inline">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-danger">
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Desea desactivar este producto?')">
                             Desactivar
                         </button>
                     </form>

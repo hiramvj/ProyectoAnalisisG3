@@ -9,11 +9,14 @@
     [StockMinimo]         DECIMAL (18, 2) DEFAULT ((0)) NOT NULL,
     [Activo]              BIT             DEFAULT ((1)) NOT NULL,
     [FechaCreacion]       DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
+    [Stock]               DECIMAL (18, 2) CONSTRAINT [DF_Producto_Stock] DEFAULT ((0)) NOT NULL,
     PRIMARY KEY CLUSTERED ([ProductoId] ASC),
     CONSTRAINT [FK_Producto_Categoria] FOREIGN KEY ([CategoriaProductoId]) REFERENCES [dbo].[CategoriaProducto] ([CategoriaProductoId]),
     CONSTRAINT [FK_Producto_Unidad] FOREIGN KEY ([UnidadMedidaId]) REFERENCES [dbo].[UnidadMedida] ([UnidadMedidaId]),
     UNIQUE NONCLUSTERED ([SKU] ASC)
 );
+
+
 
 
 GO

@@ -1,16 +1,21 @@
 ﻿using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using DA.Contexto;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoTachi.Controllers
 {
     public class ProductosController : Controller
     {
         private readonly IProductoFlujo _flujo;
+        private readonly AppDbContext _db;
 
-        public ProductosController(IProductoFlujo flujo)
+        public ProductosController(IProductoFlujo flujo, AppDbContext db)
         {
             _flujo = flujo;
+            _db = db;
         }
 
         // LISTA ACTIVOS
@@ -69,6 +74,7 @@ namespace ProyectoTachi.Controllers
         {
             var dto = await _flujo.ObtenerPorIdAsync(id);
             if (dto == null) return NotFound();
+            await CargarCategoriasAsync(dto.CategoriaProductoId);
             return View(dto);
         }
 
@@ -78,13 +84,16 @@ namespace ProyectoTachi.Controllers
         public async Task<IActionResult> Edit(ProductoDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                await CargarCategoriasAsync(dto.CategoriaProductoId);
                 return View(dto);
+            }
 
             var ok = await _flujo.EditarAsync(dto);
-
             if (!ok)
             {
                 ModelState.AddModelError("", "No se pudo actualizar el producto.");
+                await CargarCategoriasAsync(dto.CategoriaProductoId);
                 return View(dto);
             }
 
@@ -107,6 +116,15 @@ namespace ProyectoTachi.Controllers
         {
             await _flujo.CambiarEstadoAsync(id, true);
             return RedirectToAction(nameof(Inactivos));
+        }
+        private async Task CargarCategoriasAsync(int? seleccionada = null)
+        {
+            var cats = await _db.CategoriasProducto
+                .AsNoTracking()
+                .OrderBy(c => c.Nombre)
+                .ToListAsync();
+
+            ViewBag.Categorias = new SelectList(cats, "CategoriaProductoId", "Nombre", seleccionada);
         }
     }
 }

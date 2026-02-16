@@ -25,5 +25,7 @@ namespace Abstracciones.Modelos
         public decimal StockMinimo { get; set; }
         public bool Activo { get; set; }
         public DateTime FechaCreacion { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Stock { get; set; }
     }
 }

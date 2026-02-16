@@ -73,6 +73,7 @@ namespace Flujo
 
             if (producto.UnidadMedidaId <= 0)
                 throw new Exception("UnidadMedidaId inválido.");
+            if (producto.Stock < 0) throw new Exception("Stock no puede ser negativo.");
         }
     }
 }
