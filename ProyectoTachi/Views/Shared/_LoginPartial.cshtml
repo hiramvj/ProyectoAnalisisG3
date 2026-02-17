@@ -1,0 +1,63 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav align-items-center gap-2 tachi-auth">
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <!-- User Dropdown -->
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="fw-medium">@UserManager.GetUserName(User)</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="navbarDropdown">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2" asp-area="Identity" asp-page="/Account/Manage/Index">
+                        <i class="fa-solid fa-gear text-muted"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button id="logout" type="submit" class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <!-- Register -->
+        <li class="nav-item">
+            <a class="btn btn-outline-primary btn-sm tachi-auth-btn"
+               id="register"
+               asp-area="Identity"
+               asp-page="/Account/Register">
+
+                <i class="fa-solid fa-user-plus me-2"></i>
+                Register
+            </a>
+        </li>
+
+        <!-- Login -->
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm tachi-auth-btn"
+               id="login"
+               asp-area="Identity"
+               asp-page="/Account/Login">
+
+                <i class="fa-solid fa-right-to-bracket me-2"></i>
+                Login
+            </a>
+        </li>
+    }
+
+</ul>

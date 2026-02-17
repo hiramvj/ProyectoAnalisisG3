@@ -1,0 +1,61 @@
+﻿<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Stock</th>
+            <th>Precio Unidad</th>
+            <th>Estado</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var bajoStock = item.Stock <= item.StockMinimo;
+
+            <tr>
+                <td>@item.SKU</td>
+                <td>@item.Nombre</td>
+
+                <td class="@(bajoStock ? "text-danger fw-bold" : "")">
+                    @item.Stock
+                </td>
+
+                <td>₡ @item.Precio.ToString("N2")</td>
+
+                <td>
+                    @if (bajoStock)
+                    {
+                        <span class="badge bg-warning text-dark">Bajo Stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Disponible</span>
+                    }
+                </td>
+
+                <td class="text-center">
+                    <a asp-action="Edit"
+                       asp-route-id="@item.ProductoId"
+                       class="btn btn-sm btn-outline-primary">
+                        Editar
+                    </a>
+
+                    <form asp-action="Desactivar"
+                          asp-route-id="@item.ProductoId"
+                          method="post"
+                          style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Desea desactivar este producto?')">
+                            Desactivar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

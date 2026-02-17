@@ -1,0 +1,55 @@
+﻿@page
+@model RegisterModel
+@{
+    Layout = "/Views/Shared/_LayoutAuth.cshtml";
+    ViewData["Title"] = "Registro";
+}
+
+<div class="auth-header text-center">
+    <img src="~/img/tachi-logo.png" class="auth-logo" alt="Tachi Distribuidora" />
+    <div class="auth-subtitle">Crear una cuenta</div>
+    <hr class="auth-divider" />
+</div>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">Email</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+            <input asp-for="Input.Email" class="form-control" placeholder="correo@ejemplo.com" />
+        </div>
+        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Contraseña</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input asp-for="Input.Password" class="form-control" placeholder="********" />
+        </div>
+        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.ConfirmPassword" class="form-label">Confirmar contraseña</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="********" />
+        </div>
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 auth-btn">
+        <i class="fa-solid fa-user-plus me-2"></i>Registrar
+    </button>
+
+    <div class="text-center mt-3 small">
+        <a asp-page="./Login" class="auth-link">Ya tengo cuenta</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
