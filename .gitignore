@@ -360,4 +360,8 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
+FodyWeavers.xsd.DS_Store
+ProyectoTachi/app.db
+ProyectoTachi/app.db-shm
+ProyectoTachi/app.db-wal
+publish_output/

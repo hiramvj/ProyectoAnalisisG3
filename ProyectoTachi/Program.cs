@@ -12,8 +12,18 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 // DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Simple heuristic: if "UseSqlite" is true in config OR connection string looks like filesystem path
+if (builder.Configuration.GetValue<bool>("UseSqlite") || (connectionString != null && connectionString.Contains(".db")))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 
 // Identity 
 builder.Services
@@ -35,6 +45,9 @@ builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 await SeedAdminAsync(app);
+await SeedProductsAsync(app);
+await SeedClientsAsync(app);
+await SeedProductsAsync(app);
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -113,6 +126,10 @@ app.Run();
 static async Task SeedAdminAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
+    
+    // Ensure database is created (for SQLite dev/demo purposes)
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.EnsureCreatedAsync();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -150,7 +167,7 @@ static async Task SeedAdminAsync(WebApplication app)
     }
 
     if (adminUser == null)
-        throw new Exception("El usuario admin no qued� creado correctamente.");
+        throw new Exception("El usuario admin no quedó creado correctamente.");
 
     if (!await userManager.IsInRoleAsync(adminUser, roleName))
     {
@@ -159,4 +176,87 @@ static async Task SeedAdminAsync(WebApplication app)
             throw new Exception("No se pudo asignar el rol Admin: " +
                 string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
     }
+}
+
+static async Task SeedProductsAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // 1. Ensure Category "Ferretería" exists
+    var categoria = await context.CategoriasProducto.FirstOrDefaultAsync(c => c.Nombre == "Ferretería");
+    if (categoria == null)
+    {
+        categoria = new Abstracciones.Modelos.CategoriaProductoDto { Nombre = "Ferretería" };
+        context.CategoriasProducto.Add(categoria);
+        await context.SaveChangesAsync();
+    }
+
+    // 2. Check if products already exist to avoid duplication
+    if (await context.Productos.AnyAsync()) return;
+
+    // 3. Generate 50 hardware products
+    var random = new Random();
+    var products = new List<Abstracciones.Modelos.ProductoDto>();
+    string[] hardwareItems = { "Martillo", "Destornillador", "Llave Inglesa", "Taladro", "Sierra", "Clavos", "Tornillos", "Tuercas", "Arandelas", "Cinta Métrica", "Nivel", "Alicates", "Llave Allen", "Broca", "Lija", "Pintura", "Brocha", "Rodillo", "Pegamento", "Cemento", "Yeso", "Ladrillo", "Tubería PVC", "Codo PVC", "Grifo", "Válvula", "Cable Eléctrico", "Enchufe", "Interruptor", "Bombilla", "Fusible", "Caja Herramientas", "Guantes", "Gafas Seguridad", "Casco", "Botas", "Escalera", "Carretilla", "Pala", "Rastrillo", "Manguera", "Aspersor", "Maceta", "Tierra", "Semillas", "Abono", "Fertilizante", "Herbicida", "Pesticida", "Raticida" };
+
+    for (int i = 0; i < 50; i++)
+    {
+        var itemBase = hardwareItems[i % hardwareItems.Length];
+        var itemVariant = i / hardwareItems.Length + 1;
+        var name = itemVariant > 1 ? $"{itemBase} v{itemVariant}" : itemBase;
+
+        products.Add(new Abstracciones.Modelos.ProductoDto
+        {
+            SKU = $"FER-{i + 1:000}",
+            Nombre = name,
+            CategoriaProductoId = categoria.CategoriaProductoId,
+            UnidadMedidaId = 1, // Assuming 1 represents "Unidad"
+            Costo = random.Next(5, 500),
+            Precio = random.Next(10, 1000),
+            Stock = random.Next(10, 100),
+            StockMinimo = random.Next(5, 20),
+            Activo = true,
+            FechaCreacion = DateTime.Now
+        });
+    }
+
+    context.Productos.AddRange(products);
+    await context.SaveChangesAsync();
+}
+
+static async Task SeedClientsAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // 1. Check if clients already exist
+    if (await context.Clientes.AnyAsync()) return;
+
+    // 2. Generate 50 clients
+    var random = new Random();
+    var clients = new List<Abstracciones.Modelos.ClienteDto>();
+    string[] firstNames = { "Juan", "María", "Pedro", "Ana", "Luis", "Carmen", "José", "Laura", "Carlos", "Sofía", "Miguel", "Elena", "Francisco", "Isabel", "David", "Patricia", "Manuel", "Lucía", "Javier", "Teresa" };
+    string[] lastNames = { "García", "Rodríguez", "González", "Fernández", "López", "Martínez", "Sánchez", "Pérez", "Gómez", "Martín", "Jiménez", "Ruiz", "Hernández", "Díaz", "Moreno", "Muñoz", "Álvarez", "Romero", "Alonso", "Gutiérrez" };
+
+    for (int i = 0; i < 50; i++)
+    {
+        var firstName = firstNames[random.Next(firstNames.Length)];
+        var lastName = lastNames[random.Next(lastNames.Length)];
+        var fullName = $"{firstName} {lastName}";
+
+        clients.Add(new Abstracciones.Modelos.ClienteDto
+        {
+            NombreCompleto = fullName,
+            Identificacion = $"{random.Next(100000000, 999999999)}", // Random 9-digit ID
+            Correo = $"{firstName.ToLower()}.{lastName.ToLower()}{i}@example.com",
+            Telefono = $"{random.Next(60000000, 99999999)}",
+            Direccion = $"Calle {random.Next(1, 100)}, Av {random.Next(1, 20)}",
+            Activo = true,
+            FechaCreacion = DateTime.Now
+        });
+    }
+
+    context.Clientes.AddRange(clients);
+    await context.SaveChangesAsync();
 }

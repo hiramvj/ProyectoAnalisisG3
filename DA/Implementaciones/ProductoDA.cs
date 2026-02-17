@@ -21,84 +21,52 @@ namespace DA.Implementaciones
         public async Task<List<ProductoDto>> ListarPorEstadoAsync(bool activo)
         {
             return await _db.Productos
-                .FromSqlInterpolated($"EXEC dbo.sp_Producto_ListarPorEstado @Activo={activo}")
+                .Where(p => p.Activo == activo)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<ProductoDto?> ObtenerPorIdAsync(int productoId)
         {
-            var lista = await _db.Productos
-                .FromSqlInterpolated($"EXEC dbo.sp_Producto_ObtenerPorId @ProductoId={productoId}")
+            return await _db.Productos
                 .AsNoTracking()
-                .ToListAsync();
-
-            return lista.FirstOrDefault();
+                .FirstOrDefaultAsync(p => p.ProductoId == productoId);
         }
 
         public async Task<int> InsertarAsync(ProductoDto p)
         {
-            using var cmd = _db.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.sp_Producto_Insertar";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(new SqlParameter("@SKU", p.SKU));
-            cmd.Parameters.Add(new SqlParameter("@Nombre", p.Nombre));
-            cmd.Parameters.Add(new SqlParameter("@CategoriaProductoId", (object?)p.CategoriaProductoId ?? DBNull.Value));
-            cmd.Parameters.Add(new SqlParameter("@UnidadMedidaId", p.UnidadMedidaId));
-            cmd.Parameters.Add(new SqlParameter("@Costo", p.Costo));
-            cmd.Parameters.Add(new SqlParameter("@Precio", p.Precio));
-
-            
-            cmd.Parameters.Add(new SqlParameter("@Stock", p.Stock));
-
-            cmd.Parameters.Add(new SqlParameter("@StockMinimo", p.StockMinimo));
-
-            if (cmd.Connection!.State != System.Data.ConnectionState.Open)
-                await cmd.Connection.OpenAsync();
-
-            return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            p.FechaCreacion = DateTime.Now; // Ensure creation date is set
+            _db.Productos.Add(p);
+            await _db.SaveChangesAsync();
+            return p.ProductoId;
         }
 
         public async Task<int> ActualizarAsync(ProductoDto p)
         {
-            using var cmd = _db.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.sp_Producto_Actualizar";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            var existing = await _db.Productos.FindAsync(p.ProductoId);
+            if (existing == null) return 0;
 
-            cmd.Parameters.Add(new SqlParameter("@ProductoId", p.ProductoId));
-            cmd.Parameters.Add(new SqlParameter("@SKU", p.SKU));
-            cmd.Parameters.Add(new SqlParameter("@Nombre", p.Nombre));
-            cmd.Parameters.Add(new SqlParameter("@CategoriaProductoId", (object?)p.CategoriaProductoId ?? DBNull.Value));
-            cmd.Parameters.Add(new SqlParameter("@UnidadMedidaId", p.UnidadMedidaId));
-            cmd.Parameters.Add(new SqlParameter("@Costo", p.Costo));
-            cmd.Parameters.Add(new SqlParameter("@Precio", p.Precio));
-
+            existing.SKU = p.SKU;
+            existing.Nombre = p.Nombre;
+            existing.CategoriaProductoId = p.CategoriaProductoId;
+            existing.UnidadMedidaId = p.UnidadMedidaId;
+            existing.Costo = p.Costo;
+            existing.Precio = p.Precio;
+            existing.Stock = p.Stock;
+            existing.StockMinimo = p.StockMinimo;
+            // FechaCreacion and Activo might strictly not change here or depend on logic, keeping unsafe updates minimal
             
-            cmd.Parameters.Add(new SqlParameter("@Stock", p.Stock));
-
-            cmd.Parameters.Add(new SqlParameter("@StockMinimo", p.StockMinimo));
-
-            if (cmd.Connection!.State != System.Data.ConnectionState.Open)
-                await cmd.Connection.OpenAsync();
-
-            var result = await cmd.ExecuteScalarAsync();
-            return Convert.ToInt32(result);
+            _db.Productos.Update(existing);
+            return await _db.SaveChangesAsync(); 
         }
 
         public async Task<int> CambiarEstadoAsync(int productoId, bool activo)
         {
-            using var cmd = _db.Database.GetDbConnection().CreateCommand();
-            cmd.CommandText = "dbo.sp_Producto_CambiarEstado";
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+            var existing = await _db.Productos.FindAsync(productoId);
+            if (existing == null) return 0;
 
-            cmd.Parameters.Add(new SqlParameter("@ProductoId", productoId));
-            cmd.Parameters.Add(new SqlParameter("@Activo", activo));
-
-            if (cmd.Connection!.State != System.Data.ConnectionState.Open)
-                await cmd.Connection.OpenAsync();
-
-            return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            existing.Activo = activo;
+            return await _db.SaveChangesAsync();
         }
 
         private static ProductoDto MapToDto(Producto e) => new ProductoDto

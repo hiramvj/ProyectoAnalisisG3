@@ -41,6 +41,12 @@
                         <span>Inventario</span>
                     </a>
 
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clientes" ? "active" : "")"
+                       asp-controller="Clientes" asp-action="Index">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Clientes</span>
+                    </a>
+
                     <a class="tachi-link"
                        asp-controller="Productos" asp-action="Inactivos">
                         <i class="fa-solid fa-box-archive"></i>
