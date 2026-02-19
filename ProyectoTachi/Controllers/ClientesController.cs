@@ -17,6 +17,10 @@ namespace ProyectoTachi.Controllers
         public async Task<IActionResult> Index()
         {
             var lista = await _flujo.ObtenerTodosAsync(true);
+
+            // total para el cuadrito
+            ViewBag.TotalClientesActivos = lista?.Count ?? 0;
+
             return View(lista);
         }
 
