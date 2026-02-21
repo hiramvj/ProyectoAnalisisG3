@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,8 +52,7 @@ namespace DA.Contexto
             modelBuilder.Entity<ClienteDto>(entity =>
             {
                 entity.HasKey(c => c.ClienteId);
-                // Si tu tabla real de clientes también es singular, podrías hacer:
-                // entity.ToTable("Cliente");
+                entity.ToTable("Cliente");
             });
         }
     }
@@ -59,11 +60,29 @@ namespace DA.Contexto
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer(@"Server=DESKTOP-R7KSH3B\SQLEXPRESS;Database=DistribuidoraTachiDB;Trusted_Connection=True;TrustServerCertificate=True;")
-                .Options;
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            
+            // Build config to read connection strings
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .Build();
 
-            return new AppDbContext(options);
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+
+            if (isWindows)
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                optionsBuilder.UseSqlServer(connectionString ?? @"Server=DESKTOP-R7KSH3B\SQLEXPRESS;Database=DistribuidoraTachiDB;Trusted_Connection=True;TrustServerCertificate=True;");
+            }
+            else
+            {
+                var connectionString = configuration.GetConnectionString("SqliteConnection");
+                optionsBuilder.UseSqlite(connectionString ?? "Data Source=app.db");
+            }
+
+            return new AppDbContext(optionsBuilder.Options);
         }
     }
     

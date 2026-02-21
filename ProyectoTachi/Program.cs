@@ -12,17 +12,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 // DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// Simple heuristic: if "UseSqlite" is true in config OR connection string looks like filesystem path
-if (builder.Configuration.GetValue<bool>("UseSqlite") || (connectionString != null && connectionString.Contains(".db")))
+var isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+
+if (isWindows)
 {
+    var connString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(connectionString));
+        options.UseSqlServer(connString));
 }
 else
 {
+    var connString = builder.Configuration.GetConnectionString("SqliteConnection") ?? "Data Source=app.db";
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseSqlite(connString));
 }
 
 // Identity 
@@ -127,9 +129,19 @@ static async Task SeedAdminAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     
-    // Ensure database is created (for SQLite dev/demo purposes)
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    var isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+    
+    if (isWindows)
+    {
+        // On Windows with SQL Server, apply existing migrations
+        await context.Database.MigrateAsync();
+    }
+    else
+    {
+        // On Mac/Linux with SQLite, build schema dynamically to avoid migration errors
+        await context.Database.EnsureCreatedAsync();
+    }
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
