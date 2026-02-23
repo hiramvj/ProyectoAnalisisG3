@@ -25,6 +25,7 @@ namespace DA.Contexto
         public DbSet<ProductoDto> Productos { get; set; }
         public DbSet<ClienteDto> Clientes { get; set; }
         public DbSet<CategoriaProductoDto> CategoriasProducto { get; set; }
+        public DbSet<UnidadMedidaDto> UnidadesMedida { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,7 +49,14 @@ namespace DA.Contexto
                 entity.HasKey(c => c.CategoriaProductoId);
                 entity.ToTable("CategoriaProducto");
             });
+            modelBuilder.Entity<UnidadMedidaDto>(entity =>
+            {
+                entity.HasKey(u => u.UnidadMedidaId);
+                entity.ToTable("UnidadMedida");
 
+                entity.Property(u => u.Nombre).HasMaxLength(150);
+                entity.Property(u => u.Abreviatura).HasMaxLength(20);
+            });
             modelBuilder.Entity<ClienteDto>(entity =>
             {
                 entity.HasKey(c => c.ClienteId);

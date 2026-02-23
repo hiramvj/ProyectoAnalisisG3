@@ -29,8 +29,12 @@
         </div>
 
         <div class="col-md-4">
-            <label asp-for="UnidadMedidaId" class="form-label">Unidad Medida (Id)</label>
-            <input asp-for="UnidadMedidaId" class="form-control" />
+            <label asp-for="UnidadMedidaId" class="form-label">Unidad de Medida</label>
+            <select asp-for="UnidadMedidaId"
+                    class="form-select"
+                    asp-items="@(ViewBag.Unidades as SelectList)">
+                <option value="">-- Seleccione unidad --</option>
+            </select>
             <span asp-validation-for="UnidadMedidaId" class="text-danger"></span>
         </div>
 

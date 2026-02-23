@@ -1,4 +1,76 @@
-﻿<table class="table table-bordered table-striped">
+﻿<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="page-title mb-0">Productos</h2>
+        <small class="text-muted">Administra tu inventario y filtra rápidamente.</small>
+    </div>
+
+    <div class="mt-2 mt-md-0">
+        <a asp-action="Create" class="btn btn-success btn-pill px-3">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Producto
+        </a>
+    </div>
+</div>
+
+<div class="card card-soft mb-3">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-5">
+                    <label class="form-label">Nombre</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text"
+                               name="nombre"
+                               value="@Context.Request.Query["nombre"]"
+                               class="form-control input-soft"
+                               placeholder="Buscar por nombre..." />
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Precio mínimo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">₡</span>
+                        <input type="number"
+                               step="0.01"
+                               name="precioMin"
+                               value="@Context.Request.Query["precioMin"]"
+                               class="form-control input-soft"
+                               placeholder="0" />
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Precio máximo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">₡</span>
+                        <input type="number"
+                               step="0.01"
+                               name="precioMax"
+                               value="@Context.Request.Query["precioMax"]"
+                               class="form-control input-soft"
+                               placeholder="0" />
+                    </div>
+                </div>
+
+                <div class="col-lg-1 d-grid">
+                    <button type="submit" class="btn btn-primary btn-pill">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="mt-2">
+                <a asp-action="Index" class="text-decoration-none">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Código</th>

@@ -19,9 +19,34 @@ namespace ProyectoTachi.Controllers
         }
 
         // LISTA ACTIVOS
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string nombre, decimal? precioMin, decimal? precioMax)
         {
-            var lista = await _flujo.ObtenerTodosAsync(true);
+            var lista = await _flujo.ObtenerTodosAsync(true); 
+
+            // FILTRO POR NOMBRE
+            if (!string.IsNullOrWhiteSpace(nombre))
+            {
+                lista = lista
+                    .Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            // FILTRO POR PRECIO MIN
+            if (precioMin.HasValue)
+            {
+                lista = lista
+                    .Where(p => p.Precio >= precioMin.Value)
+                    .ToList();
+            }
+
+            // FILTRO POR PRECIO MAX
+            if (precioMax.HasValue)
+            {
+                lista = lista
+                    .Where(p => p.Precio <= precioMax.Value)
+                    .ToList();
+            }
+
             return View(lista);
         }
 
@@ -35,9 +60,11 @@ namespace ProyectoTachi.Controllers
 
         // CREATE (GET)
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new Abstracciones.Modelos.ProductoDto());
+            await CargarCategoriasAsync();
+            await CargarUnidadesAsync();
+            return View(new ProductoDto());
         }
 
         [HttpPost]
@@ -61,7 +88,11 @@ namespace ProyectoTachi.Controllers
                 ModelState.AddModelError(nameof(dto.Precio), "Precio no puede ser negativo.");
 
             if (!ModelState.IsValid)
+            {
+                await CargarCategoriasAsync(dto.CategoriaProductoId);
+                await CargarUnidadesAsync(dto.UnidadMedidaId);
                 return View(dto);
+            }
 
             await _flujo.AgregarAsync(dto);
 
@@ -75,6 +106,7 @@ namespace ProyectoTachi.Controllers
             var dto = await _flujo.ObtenerPorIdAsync(id);
             if (dto == null) return NotFound();
             await CargarCategoriasAsync(dto.CategoriaProductoId);
+            await CargarUnidadesAsync(dto.UnidadMedidaId);
             return View(dto);
         }
 
@@ -86,6 +118,7 @@ namespace ProyectoTachi.Controllers
             if (!ModelState.IsValid)
             {
                 await CargarCategoriasAsync(dto.CategoriaProductoId);
+                await CargarUnidadesAsync(dto.UnidadMedidaId);
                 return View(dto);
             }
 
@@ -94,6 +127,7 @@ namespace ProyectoTachi.Controllers
             {
                 ModelState.AddModelError("", "No se pudo actualizar el producto.");
                 await CargarCategoriasAsync(dto.CategoriaProductoId);
+                await CargarUnidadesAsync(dto.UnidadMedidaId);
                 return View(dto);
             }
 
@@ -125,6 +159,15 @@ namespace ProyectoTachi.Controllers
                 .ToListAsync();
 
             ViewBag.Categorias = new SelectList(cats, "CategoriaProductoId", "Nombre", seleccionada);
+        }
+        private async Task CargarUnidadesAsync(int? seleccionada = null)
+        {
+            var unidades = await _db.UnidadesMedida
+                .AsNoTracking()
+                .OrderBy(u => u.Nombre)
+                .ToListAsync();
+
+            ViewBag.Unidades = new SelectList(unidades, "UnidadMedidaId", "Nombre", seleccionada);
         }
     }
 }

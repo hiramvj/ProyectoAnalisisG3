@@ -124,5 +124,8 @@
     <Build Include="dbo\Tables\AspNetRoles.sql" />
     <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
     <Build Include="dbo\Tables\__EFMigrationsHistory.sql" />
+    <Build Include="dbo\Stored Procedures\sp_PedidoVentaDetalle_Agregar.sql" />
+    <Build Include="dbo\Stored Procedures\sp_PedidoVenta_Crear.sql" />
+    <Build Include="dbo\Stored Procedures\sp_Factura_CrearDesdePedido.sql" />
   </ItemGroup>
 </Project>
