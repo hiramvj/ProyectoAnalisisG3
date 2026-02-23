@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Ventas";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Ventas / Pedidos</h2>
+
+    @if (TempData["Ok"] != null)
+    {
+        <div class="alert alert-success">@TempData["Ok"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Facturar" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">PedidoVentaId</label>
+                    <input class="form-control" type="number" name="pedidoVentaId" placeholder="Ej: 3" required />
+                </div>
+
+                <button class="btn btn-success" type="submit">
+                    Facturar e Imprimir
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

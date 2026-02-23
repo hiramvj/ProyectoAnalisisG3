@@ -1,4 +1,8 @@
+using Abstracciones.Interfaces.DA;
+using Abstracciones.Interfaces.Flujo;
 using DA.Contexto;
+using DA.Implementaciones;
+using Flujo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +42,8 @@ builder.Services
 
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IProductoDA, DA.Implementaciones.ProductoDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IProductoFlujo, Flujo.ProductoFlujo>();
-
+builder.Services.AddScoped<IFacturaDA, FacturaDA>();
+builder.Services.AddScoped<IFacturaFlujo, FacturaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IClienteDA, DA.Implementaciones.ClienteDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IClienteFlujo, Flujo.ClienteFlujo>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
