@@ -1,13 +1,7 @@
 ﻿using Abstracciones.Interfaces.DA;
+using Abstracciones.Modelos;
 using DA.Contexto;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DA.Implementaciones
 {
@@ -15,32 +9,66 @@ namespace DA.Implementaciones
     {
         private readonly AppDbContext _db;
 
-        public FacturaDA(AppDbContext db) => _db = db;
-
-        public async Task<int> CrearDesdePedidoAsync(int pedidoVentaId)
+        public FacturaDA(AppDbContext db)
         {
-            // Output parameter
-            var facturaIdParam = new SqlParameter("@FacturaId", SqlDbType.Int)
+            _db = db;
+        }
+
+        public async Task<List<FacturaDto>> ListarAsync(string? estado, DateTime? fechaEmision)
+        {
+            var query = _db.Facturas.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(estado))
+                query = query.Where(f => f.Estado == estado);
+
+            if (fechaEmision.HasValue)
             {
-                Direction = ParameterDirection.Output
-            };
+                var fecha = fechaEmision.Value.Date;
+                query = query.Where(f => f.FechaEmision.Date == fecha);
+            }
 
-            // Input parameter
-            var pedidoIdParam = new SqlParameter("@PedidoVentaId", SqlDbType.Int)
-            {
-                Value = pedidoVentaId
-            };
+            return await query
+                .OrderByDescending(f => f.FechaEmision)
+                .ToListAsync();
+        }
 
-            // Ejecuta el SP (IMPORTANTE: @FacturaId OUTPUT)
-            await _db.Database.ExecuteSqlRawAsync(
-                "EXEC dbo.sp_Factura_CrearDesdePedido @PedidoVentaId, @FacturaId OUTPUT",
-                pedidoIdParam,
-                facturaIdParam
-            );
+        public async Task<FacturaDto?> ObtenerPorIdAsync(int facturaId)
+        {
+            return await _db.Facturas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f => f.FacturaId == facturaId);
+        }
 
-            // Si el SP hace THROW, esto lanza excepción y no llega aquí
-            return (int)(facturaIdParam.Value ?? 0);
+        public async Task<int> InsertarAsync(FacturaDto factura)
+        {
+            _db.Facturas.Add(factura);
+            await _db.SaveChangesAsync();
+            return factura.FacturaId;
+        }
+
+        public async Task<int> ActualizarAsync(FacturaDto factura)
+        {
+            var existing = await _db.Facturas.FindAsync(factura.FacturaId);
+            if (existing == null) return 0;
+
+            existing.NumeroFactura = factura.NumeroFactura;
+            existing.PedidoVentaId = factura.PedidoVentaId;
+            existing.FechaEmision = factura.FechaEmision;
+            existing.Subtotal = factura.Subtotal;
+            existing.Impuesto = factura.Impuesto;
+            existing.Total = factura.Total;
+            existing.Estado = factura.Estado;
+
+            return await _db.SaveChangesAsync();
+        }
+
+        public async Task<int> CambiarEstadoAsync(int facturaId, string nuevoEstado)
+        {
+            var existing = await _db.Facturas.FindAsync(facturaId);
+            if (existing == null) return 0;
+
+            existing.Estado = nuevoEstado;
+            return await _db.SaveChangesAsync();
         }
     }
 }
-

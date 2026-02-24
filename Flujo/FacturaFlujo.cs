@@ -1,15 +1,12 @@
 ﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Abstracciones.Modelos;
 
 namespace Flujo
 {
     public class FacturaFlujo : IFacturaFlujo
     {
+
         private readonly IFacturaDA _facturaDA;
 
         public FacturaFlujo(IFacturaDA facturaDA)
@@ -17,17 +14,30 @@ namespace Flujo
             _facturaDA = facturaDA;
         }
 
+
+        public Task<List<FacturaDto>> ListarAsync(string? estado, DateTime? fechaEmision)
+            => _facturaDA.ListarAsync(estado, fechaEmision);
+
+        public Task<FacturaDto?> ObtenerPorIdAsync(int facturaId)
+            => _facturaDA.ObtenerPorIdAsync(facturaId);
+
+        public async Task<int> CrearAsync(FacturaDto factura)
+        {
+            factura.FechaEmision = DateTime.Now;
+            factura.Estado = "Pendiente Envío";
+
+            return await _facturaDA.InsertarAsync(factura);
+        }
+
+        public async Task<bool> CambiarEstadoAsync(int facturaId, string nuevoEstado)
+        {
+            var filas = await _facturaDA.CambiarEstadoAsync(facturaId, nuevoEstado);
+            return filas > 0;
+        }
+
         public async Task<int> CrearDesdePedidoAsync(int pedidoVentaId)
         {
-            if (pedidoVentaId <= 0)
-                throw new Exception("PedidoVentaId inválido.");
-
-            var facturaId = await _facturaDA.CrearDesdePedidoAsync(pedidoVentaId);
-
-            if (facturaId <= 0)
-                throw new Exception("No se pudo generar la factura.");
-
-            return facturaId;
+            throw new NotImplementedException("CrearDesdePedidoAsync no está implementado.");
         }
     }
 }

@@ -31,11 +31,11 @@
             <div class="card h-100 border-0 shadow-sm border-start border-4 @(Model.ProductosBajoStock > 0 ? "border-danger" : "border-success")">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted text-uppercase">Bajo Stock</h6>
-                     <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between">
                         <h2 class="card-title fw-bold mb-0 @(Model.ProductosBajoStock > 0 ? "text-danger" : "text-success")">@Model.ProductosBajoStock</h2>
                         <span class="badge bg-danger rounded-pill"><i class="bi bi-exclamation-triangle"></i></span>
                     </div>
-                    @if(Model.ProductosBajoStock > 0)
+                    @if (Model.ProductosBajoStock > 0)
                     {
                         <small class="text-danger mt-2 d-block">Requiere atención</small>
                     }
@@ -72,6 +72,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- Facturación (NUEVO) -->
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 @(Model.FacturasPendientes > 0 ? "border-warning" : "border-success")">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted text-uppercase">Facturas Pendientes</h6>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h2 class="card-title fw-bold mb-0 @(Model.FacturasPendientes > 0 ? "text-warning" : "text-success")">
+                            @Model.FacturasPendientes
+                        </h2>
+                        <span class="badge bg-warning rounded-pill text-dark"><i class="bi bi-receipt"></i></span>
+                    </div>
+
+                    @if (Model.FacturasPendientes > 0)
+                    {
+                        <small class="text-warning mt-2 d-block">Pendientes de envío / respuesta</small>
+                    }
+                    else
+                    {
+                        <small class="text-success mt-2 d-block">Facturación al día</small>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Quick Actions -->
@@ -79,6 +103,7 @@
         <div class="col-12">
             <h4 class="mb-3 text-secondary">Accesos Rápidos</h4>
         </div>
+
         <div class="col-md-6 col-lg-4 mb-3">
             <a asp-controller="Productos" asp-action="Index" class="btn btn-outline-primary btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
                 <div class="d-flex align-items-center">
@@ -90,6 +115,7 @@
                 </div>
             </a>
         </div>
+
         <div class="col-md-6 col-lg-4 mb-3">
             <a asp-controller="Clientes" asp-action="Index" class="btn btn-outline-success btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
                 <div class="d-flex align-items-center">
@@ -101,15 +127,29 @@
                 </div>
             </a>
         </div>
+
+        <!-- Facturación (NUEVO) -->
+        <div class="col-md-6 col-lg-4 mb-3">
+            <a asp-controller="Facturas" asp-action="Index" class="btn btn-outline-warning btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                <div class="d-flex align-items-center">
+                    <div class="fs-1 me-3"><i class="bi bi-receipt-cutoff"></i></div>
+                    <div>
+                        <div class="fw-bold">Gestión de Facturación</div>
+                        <small class="text-muted">Ver, filtrar y enviar facturas</small>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 
 <style>
     .hover-shadow:hover {
         transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
         transition: all 0.3s ease;
     }
+
     .transition {
         transition: all 0.3s ease;
     }

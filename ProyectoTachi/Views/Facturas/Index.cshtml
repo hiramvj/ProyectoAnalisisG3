@@ -1,0 +1,110 @@
+﻿@model List<Abstracciones.Modelos.FacturaDto>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="page-title mb-0">Gestión de Facturación</h2>
+        <small class="text-muted">Gestión de Facturas Electrónicas</small>
+    </div>
+
+    <div class="mt-2 mt-md-0">
+        <a asp-action="Crear" class="btn btn-primary btn-pill px-3">
+            + Nueva Factura
+        </a>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card card-soft mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-lg-3">
+                <label class="form-label">Filtrar por Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">-- Todos --</option>
+                    <option value="Aceptada Hacienda" selected="@(ViewBag.Estado == "Aceptada Hacienda")">Aceptada Hacienda</option>
+                    <option value="Pendiente Envío" selected="@(ViewBag.Estado == "Pendiente Envío")">Pendiente Envío</option>
+                    <option value="Pendiente Respuesta" selected="@(ViewBag.Estado == "Pendiente Respuesta")">Pendiente Respuesta</option>
+                    <option value="Rechazada" selected="@(ViewBag.Estado == "Rechazada")">Rechazada</option>
+                </select>
+            </div>
+
+            <div class="col-lg-3">
+                <label class="form-label">Fecha Emisión</label>
+                <input type="date" name="fechaEmision" class="form-control" value="@ViewBag.FechaEmision" />
+            </div>
+
+            <div class="col-lg-2 d-grid">
+                <button type="submit" class="btn btn-primary btn-pill">
+                    Buscar
+                </button>
+            </div>
+
+            <div class="col-lg-2">
+                <a asp-action="Index" class="text-decoration-none">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th># Factura</th>
+            <th>Pedido</th>
+            <th>Fecha Emisión</th>
+            <th>Total</th>
+            <th>Estado Fiscal</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var f in Model)
+        {
+            <tr>
+                <td>@f.NumeroFactura</td>
+                <td>@f.PedidoVentaId</td>
+                <td>@f.FechaEmision.ToString("yyyy-MM-dd")</td>
+                <td>₡ @f.Total.ToString("N2")</td>
+                <td>
+                    @if (f.Estado == "Aceptada Hacienda")
+                    {
+                        <span class="badge bg-success">Aceptada Hacienda</span>
+                    }
+                    else if (f.Estado == "Pendiente Envío")
+                    {
+                        <span class="badge bg-info text-dark">Pendiente Envío</span>
+                    }
+                    else if (f.Estado == "Pendiente Respuesta")
+                    {
+                        <span class="badge bg-warning text-dark">Pendiente Respuesta</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">@f.Estado</span>
+                    }
+                </td>
+
+                <td class="text-center">
+                    @if (f.Estado == "Pendiente Envío")
+                    {
+                        <form asp-action="Enviar" asp-route-id="@f.FacturaId" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Enviar
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" disabled>Enviar</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

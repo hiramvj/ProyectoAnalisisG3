@@ -9,5 +9,7 @@ namespace ProyectoTachi.Models
         public int ProductosBajoStock { get; set; }
         public int TotalClientes { get; set; }
         public int ClientesActivos { get; set; }
+
+        public int FacturasPendientes { get; set; }
     }
 }

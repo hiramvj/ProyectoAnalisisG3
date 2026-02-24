@@ -19,7 +19,7 @@ namespace DA.Contexto
             : base(options)
         {
         }
-
+        public DbSet<FacturaDto> Facturas { get; set; }
         public DbSet<ProductoDto> Productos { get; set; }
         public DbSet<ClienteDto> Clientes { get; set; }
         public DbSet<CategoriaProductoDto> CategoriasProducto { get; set; }
@@ -31,6 +31,24 @@ namespace DA.Contexto
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<FacturaDto>(entity =>
+            {
+                entity.HasKey(f => f.FacturaId);
+
+    
+                entity.ToTable("Factura");
+
+                entity.Property(f => f.Subtotal).HasColumnType("decimal(18,2)");
+                entity.Property(f => f.Impuesto).HasColumnType("decimal(18,2)");
+                entity.Property(f => f.Total).HasColumnType("decimal(18,2)");
+
+                entity.Property(f => f.Estado).HasMaxLength(50);
+            });
+
+
+
 
             modelBuilder.Entity<ProductoDto>(entity =>
             {
