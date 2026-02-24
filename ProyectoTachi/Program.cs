@@ -156,6 +156,49 @@ static async Task SeedAdminAsync(WebApplication app)
         }
     }
     renameScript.AppendLine(@"
+CREATE OR REPLACE FUNCTION public.sp_factura_creardesdepedido(p_pedidoventaid integer)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_factura_id integer;
+    v_numero_factura integer;
+    v_subtotal decimal(18,2);
+    v_impuesto decimal(18,2);
+    v_total decimal(18,2);
+BEGIN
+    SELECT COALESCE(MAX(""NumeroFactura""), 0) + 1 INTO v_numero_factura FROM ""Factura"";
+
+    SELECT COALESCE(SUM(""Cantidad"" * ""PrecioUnitario""), 0) INTO v_subtotal
+    FROM ""PedidoVentaDetalle""
+    WHERE ""PedidoVentaId"" = p_pedidoventaid;
+
+    v_impuesto := ROUND(v_subtotal * 0.13, 2);
+    v_total := v_subtotal + v_impuesto;
+
+    INSERT INTO ""Factura""
+        (""NumeroFactura"", ""PedidoVentaId"", ""FechaEmision"", ""Subtotal"", ""Impuesto"", ""Total"", ""Estado"")
+    VALUES
+        (v_numero_factura, p_pedidoventaid, timezone('utc', now()), v_subtotal, v_impuesto, v_total, 'Emitida')
+    RETURNING ""FacturaId"" INTO v_factura_id;
+
+    INSERT INTO ""FacturaDetalle"" (""FacturaId"", ""ProductoId"", ""Cantidad"", ""PrecioUnitario"")
+    SELECT v_factura_id, ""ProductoId"", ""Cantidad"", ""PrecioUnitario""
+    FROM ""PedidoVentaDetalle""
+    WHERE ""PedidoVentaId"" = p_pedidoventaid;
+
+    UPDATE ""Producto"" p
+    SET ""Stock"" = COALESCE(p.""Stock"", 0) - d.""Cantidad""
+    FROM ""PedidoVentaDetalle"" d
+    WHERE p.""ProductoId"" = d.""ProductoId"" AND d.""PedidoVentaId"" = p_pedidoventaid;
+
+    UPDATE ""PedidoVenta"" SET ""Estado"" = 'ENTREGADA'
+    WHERE ""PedidoVentaId"" = p_pedidoventaid;
+
+    RETURN v_factura_id;
+END;
+$function$;
+
 CREATE OR REPLACE FUNCTION public.fn_audit_trigger()
  RETURNS trigger
  LANGUAGE plpgsql
