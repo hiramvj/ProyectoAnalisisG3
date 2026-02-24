@@ -55,7 +55,7 @@ namespace DA.Implementaciones
 
         public async Task<int> InsertarAsync(ProveedorDto proveedor)
         {
-            proveedor.FechaCreacion = DateTime.Now;
+            proveedor.FechaCreacion = DateTime.UtcNow;
             proveedor.Activo = true;
 
             _db.Proveedores.Add(proveedor);

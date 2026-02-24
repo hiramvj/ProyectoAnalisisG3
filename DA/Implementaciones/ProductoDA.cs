@@ -34,7 +34,7 @@ namespace DA.Implementaciones
 
         public async Task<int> InsertarAsync(ProductoDto p)
         {
-            p.FechaCreacion = DateTime.Now; // Ensure creation date is set
+            p.FechaCreacion = DateTime.UtcNow; // Ensure creation date is set
             _db.Productos.Add(p);
             await _db.SaveChangesAsync();
             return p.ProductoId;

@@ -24,7 +24,7 @@ namespace DA.Implementaciones
                 NumeroPedido = max + 1,
                 ClienteId = clienteId,
                 Estado = "CREADA",
-                FechaPedido = DateTime.Now,
+                FechaPedido = DateTime.UtcNow,
                 Observaciones = observaciones,
                 MetodoPagoId = metodoPagoId
             };

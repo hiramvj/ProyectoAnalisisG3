@@ -34,7 +34,7 @@ namespace DA.Implementaciones
 
         public async Task<int> InsertarAsync(ClienteDto c)
         {
-            c.FechaCreacion = DateTime.Now;
+            c.FechaCreacion = DateTime.UtcNow;
             _db.Clientes.Add(c);
             await _db.SaveChangesAsync();
             return c.ClienteId;
