@@ -23,8 +23,10 @@
         </div>
 
         <div class="col-md-4">
-            <label asp-for="CategoriaProductoId" class="form-label">Categoría (Id)</label>
-            <input asp-for="CategoriaProductoId" class="form-control" />
+            <label asp-for="CategoriaProductoId" class="form-label">Categoría</label>
+            <select asp-for="CategoriaProductoId" class="form-select" asp-items="@(ViewBag.Categorias as SelectList)">
+                <option value="">-- Seleccione categoría --</option>
+            </select>
             <span asp-validation-for="CategoriaProductoId" class="text-danger"></span>
         </div>
 
