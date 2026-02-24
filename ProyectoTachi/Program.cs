@@ -16,20 +16,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 // DbContext
-var isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-
-if (isWindows)
-{
-    var connString = builder.Configuration.GetConnectionString("DefaultConnection");
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(connString));
-}
-else
-{
-    var connString = builder.Configuration.GetConnectionString("SqliteConnection") ?? "Data Source=app.db";
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(connString));
-}
+var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connString));
 
 // Identity 
 builder.Services
@@ -48,6 +37,16 @@ builder.Services.AddScoped<IFacturaDA, FacturaDA>();
 builder.Services.AddScoped<IFacturaFlujo, FacturaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IClienteDA, DA.Implementaciones.ClienteDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IClienteFlujo, Flujo.ClienteFlujo>();
+
+builder.Services.AddScoped<Abstracciones.Interfaces.DA.IProveedorDA, DA.Implementaciones.ProveedorDA>();
+builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IProveedorFlujo, Flujo.ProveedorFlujo>();
+
+builder.Services.AddScoped<Abstracciones.Interfaces.DA.IPedidoVentaDA, DA.Implementaciones.PedidoVentaDA>();
+builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IPedidoVentaFlujo, Flujo.PedidoVentaFlujo>();
+
+builder.Services.AddScoped<Abstracciones.Interfaces.DA.IFacturaDA, DA.Implementaciones.FacturaDA>();
+builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IFacturaFlujo, Flujo.FacturaFlujo>();
+
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IPedidoVentaDA, PedidoVentaDA>();
 builder.Services.AddScoped<IPedidoVentaFlujo, PedidoVentaFlujo>();
@@ -139,18 +138,48 @@ static async Task SeedAdminAsync(WebApplication app)
     using var scope = app.Services.CreateScope();
     
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
-    
-    if (isWindows)
+
+    var renameScript = new System.Text.StringBuilder();
+    renameScript.AppendLine("DO $$ DECLARE prop_record RECORD; BEGIN ");
+    renameScript.AppendLine("BEGIN ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS \"Stock\" NUMERIC(18,2) NOT NULL DEFAULT 0; EXCEPTION WHEN others THEN NULL; END;");
+    foreach (var entity in context.Model.GetEntityTypes())
     {
-        // On Windows with SQL Server, apply existing migrations
-        await context.Database.MigrateAsync();
+        var tName = entity.GetTableName();
+        if (tName == null || tName.StartsWith("AspNet")) continue;
+        
+        foreach (var prop in entity.GetProperties())
+        {
+            var colName = prop.GetColumnName(Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table(tName, null));
+            if (colName == null) continue;
+            
+            renameScript.AppendLine($"BEGIN ALTER TABLE \"{tName}\" RENAME COLUMN {colName.ToLower()} TO \"{colName}\"; EXCEPTION WHEN undefined_column THEN NULL; END;");
+        }
     }
-    else
-    {
-        // On Mac/Linux with SQLite, build schema dynamically to avoid migration errors
-        await context.Database.EnsureCreatedAsync();
-    }
+    renameScript.AppendLine(@"
+CREATE OR REPLACE FUNCTION public.fn_audit_trigger()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    v_accion VARCHAR(50);
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        v_accion := 'Inserción';
+    ELSIF TG_OP = 'UPDATE' THEN
+        v_accion := 'Actualización';
+    ELSIF TG_OP = 'DELETE' THEN
+        v_accion := 'Eliminación';
+    END IF;
+
+    INSERT INTO ""Auditoria""(tabla, accion, cantidadfilas) 
+    VALUES (TG_TABLE_NAME, v_accion, 1);
+
+    RETURN NEW;
+END;
+$function$;
+");
+    renameScript.AppendLine("END $$;");
+    await context.Database.ExecuteSqlRawAsync(renameScript.ToString());
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -238,7 +267,7 @@ static async Task SeedProductsAsync(WebApplication app)
             Stock = random.Next(10, 100),
             StockMinimo = random.Next(5, 20),
             Activo = true,
-            FechaCreacion = DateTime.Now
+            FechaCreacion = DateTime.UtcNow
         });
     }
 
@@ -274,7 +303,7 @@ static async Task SeedClientsAsync(WebApplication app)
             Telefono = $"{random.Next(60000000, 99999999)}",
             Direccion = $"Calle {random.Next(1, 100)}, Av {random.Next(1, 20)}",
             Activo = true,
-            FechaCreacion = DateTime.Now
+            FechaCreacion = DateTime.UtcNow
         });
     }
 

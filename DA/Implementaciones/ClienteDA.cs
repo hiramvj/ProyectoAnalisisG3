@@ -2,7 +2,6 @@ using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using DA.Contexto;
 using DA.Entidades;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

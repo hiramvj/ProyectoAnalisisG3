@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -65,10 +66,18 @@ namespace DA.Contexto
                 entity.HasKey(c => c.ClienteId);
                 entity.ToTable("Cliente");
             });
-            modelBuilder.Entity<PedidoVentaDetalle>()
-    .HasOne(d => d.PedidoVenta)
-    .WithMany(p => p.Detalles)
-    .HasForeignKey(d => d.PedidoVentaId);
+            modelBuilder.Entity<PedidoVenta>(entity =>
+            {
+                entity.ToTable("PedidoVenta");
+            });
+
+            modelBuilder.Entity<PedidoVentaDetalle>(entity =>
+            {
+                entity.ToTable("PedidoVentaDetalle");
+                entity.HasOne(d => d.PedidoVenta)
+                      .WithMany(p => p.Detalles)
+                      .HasForeignKey(d => d.PedidoVentaId);
+            });
             modelBuilder.Entity<ProveedorDto>(entity =>
             {
                 entity.HasKey(p => p.ProveedorId);
@@ -86,8 +95,6 @@ namespace DA.Contexto
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            
             // Build config to read connection strings
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -97,16 +104,8 @@ namespace DA.Contexto
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-            if (isWindows)
-            {
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
-                optionsBuilder.UseSqlServer(connectionString ?? @"Server=DESKTOP-R7KSH3B\SQLEXPRESS;Database=DistribuidoraTachiDB;Trusted_Connection=True;TrustServerCertificate=True;");
-            }
-            else
-            {
-                var connectionString = configuration.GetConnectionString("SqliteConnection");
-                optionsBuilder.UseSqlite(connectionString ?? "Data Source=app.db");
-            }
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseNpgsql(connectionString ?? "Host=localhost;Database=postgres;Username=postgres");
 
             return new AppDbContext(optionsBuilder.Options);
         }
