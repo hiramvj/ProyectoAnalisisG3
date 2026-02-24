@@ -164,11 +164,11 @@ DECLARE
     v_accion VARCHAR(50);
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        v_accion := 'Inserción';
+        v_accion := 'INSERT';
     ELSIF TG_OP = 'UPDATE' THEN
-        v_accion := 'Actualización';
+        v_accion := 'UPDATE';
     ELSIF TG_OP = 'DELETE' THEN
-        v_accion := 'Eliminación';
+        v_accion := 'DELETE';
     END IF;
 
     INSERT INTO ""Auditoria""(tabla, accion, cantidadfilas) 
