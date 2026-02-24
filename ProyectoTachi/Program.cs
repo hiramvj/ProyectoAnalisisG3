@@ -47,6 +47,10 @@ builder.Services.AddScoped<IFacturaFlujo, FacturaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IClienteDA, DA.Implementaciones.ClienteDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IClienteFlujo, Flujo.ClienteFlujo>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IPedidoVentaDA, PedidoVentaDA>();
+builder.Services.AddScoped<IPedidoVentaFlujo, PedidoVentaFlujo>();
+builder.Services.AddScoped<IProveedorDA, ProveedorDA>();
+builder.Services.AddScoped<IProveedorFlujo, ProveedorFlujo>();
 
 var app = builder.Build();
 await SeedAdminAsync(app);

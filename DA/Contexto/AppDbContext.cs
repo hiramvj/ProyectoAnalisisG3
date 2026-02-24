@@ -24,6 +24,9 @@ namespace DA.Contexto
         public DbSet<ClienteDto> Clientes { get; set; }
         public DbSet<CategoriaProductoDto> CategoriasProducto { get; set; }
         public DbSet<UnidadMedidaDto> UnidadesMedida { get; set; }
+        public DbSet<PedidoVenta> PedidoVentas { get; set; }
+        public DbSet<PedidoVentaDetalle> PedidoVentaDetalles { get; set; }
+        public DbSet<ProveedorDto> Proveedores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +63,21 @@ namespace DA.Contexto
                 entity.HasKey(c => c.ClienteId);
                 // Si tu tabla real de clientes también es singular, podrías hacer:
                 // entity.ToTable("Cliente");
+            });
+            modelBuilder.Entity<PedidoVentaDetalle>()
+    .HasOne(d => d.PedidoVenta)
+    .WithMany(p => p.Detalles)
+    .HasForeignKey(d => d.PedidoVentaId);
+            modelBuilder.Entity<ProveedorDto>(entity =>
+            {
+                entity.HasKey(p => p.ProveedorId);
+                entity.ToTable("Proveedor");
+
+                entity.Property(p => p.NombreLegal).HasMaxLength(200);
+                entity.Property(p => p.CedulaJuridica).HasMaxLength(50);
+                entity.Property(p => p.Correo).HasMaxLength(150);
+                entity.Property(p => p.Telefono).HasMaxLength(50);
+                entity.Property(p => p.Direccion).HasMaxLength(250);
             });
         }
     }
