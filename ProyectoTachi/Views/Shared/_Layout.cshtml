@@ -58,6 +58,11 @@
                         <i class="fa-solid fa-box-archive"></i>
                         <span>Productos Inactivos</span>
                     </a>
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Proveedores" ? "active" : "")"
+                       asp-controller="Proveedores" asp-action="Index">
+                        <i class="fa-solid fa-truck"></i>
+                        <span>Proveedores</span>
+                    </a>
                 }
 
                 <div class="tachi-divider"></div>
