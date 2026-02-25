@@ -1,12 +1,9 @@
 ﻿using Abstracciones.Interfaces.DA;
 using DA.Contexto;
-using System.Data.Common;
+using DA.Entidades;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DA.Implementaciones
@@ -19,24 +16,68 @@ namespace DA.Implementaciones
 
         public async Task<int> CrearDesdePedidoAsync(int pedidoVentaId)
         {
-            // Ejecuta el SP usando DbConnection nativo para que sea agnóstico (PostgreSQL)
-            using var command = _db.Database.GetDbConnection().CreateCommand();
-            command.CommandText = "SELECT * FROM sp_Factura_CrearDesdePedido(@PedidoVentaId)";
-            
-            var pedidoIdParam = command.CreateParameter();
-            pedidoIdParam.ParameterName = "@PedidoVentaId";
-            pedidoIdParam.Value = pedidoVentaId;
-            command.Parameters.Add(pedidoIdParam);
-
-            await _db.Database.OpenConnectionAsync();
-            var result = await command.ExecuteScalarAsync();
-            
-            if (result != null && int.TryParse(result.ToString(), out int facturaId))
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
             {
-                return facturaId;
-            }
+                var pedido = await _db.PedidoVentas
+                    .Include(p => p.Detalles)
+                    .FirstOrDefaultAsync(p => p.PedidoVentaId == pedidoVentaId);
 
-            return 0;
+                if (pedido == null) throw new Exception("Pedido no encontrado");
+
+                int maxNumero = await _db.Facturas.MaxAsync(f => (int?)f.NumeroFactura) ?? 0;
+                var nuevoNumero = maxNumero + 1;
+
+                decimal subtotal = pedido.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
+                decimal impuesto = Math.Round(subtotal * 0.13m, 2);
+                decimal total = subtotal + impuesto;
+
+                var factura = new Factura
+                {
+                    NumeroFactura = nuevoNumero,
+                    PedidoVentaId = pedidoVentaId,
+                    FechaEmision = DateTime.UtcNow,
+                    Subtotal = subtotal,
+                    Impuesto = impuesto,
+                    Total = total,
+                    Estado = "Emitida"
+                };
+
+                _db.Facturas.Add(factura);
+                await _db.SaveChangesAsync();
+
+                foreach (var det in pedido.Detalles)
+                {
+                    var factDet = new FacturaDetalle
+                    {
+                        FacturaId = factura.FacturaId,
+                        ProductoId = det.ProductoId,
+                        Cantidad = det.Cantidad,
+                        PrecioUnitario = det.PrecioUnitario
+                    };
+                    _db.FacturaDetalles.Add(factDet);
+
+                    var producto = await _db.Productos.FindAsync(det.ProductoId);
+                    if (producto != null)
+                    {
+                        producto.Stock -= det.Cantidad;
+                        _db.Productos.Update(producto);
+                    }
+                }
+
+                pedido.Estado = "ENTREGADA";
+                _db.PedidoVentas.Update(pedido);
+
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return factura.FacturaId;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

@@ -30,6 +30,10 @@ namespace DA.Contexto
         public DbSet<PedidoVenta> PedidoVentas { get; set; }
         public DbSet<PedidoVentaDetalle> PedidoVentaDetalles { get; set; }
         public DbSet<ProveedorDto> Proveedores { get; set; }
+        public DbSet<OrdenCompra> OrdenesCompra { get; set; }
+        public DbSet<OrdenCompraDetalle> OrdenCompraDetalles { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
+        public DbSet<FacturaDetalle> FacturaDetalles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,6 +92,35 @@ namespace DA.Contexto
                 entity.Property(p => p.Correo).HasMaxLength(150);
                 entity.Property(p => p.Telefono).HasMaxLength(50);
                 entity.Property(p => p.Direccion).HasMaxLength(250);
+            });
+
+            modelBuilder.Entity<OrdenCompra>(entity =>
+            {
+                entity.ToTable("ordencompra");
+                entity.HasKey(o => o.OrdenCompraId);
+            });
+
+            modelBuilder.Entity<OrdenCompraDetalle>(entity =>
+            {
+                entity.ToTable("ordencompradetalle");
+                entity.HasKey(d => d.OrdenCompraDetalleId);
+
+                entity.HasOne(d => d.OrdenCompra)
+                      .WithMany(o => o.Detalles)
+                      .HasForeignKey(d => d.OrdenCompraId);
+            });
+
+            modelBuilder.Entity<Factura>(entity =>
+            {
+                entity.ToTable("Factura");
+            });
+
+            modelBuilder.Entity<FacturaDetalle>(entity =>
+            {
+                entity.ToTable("FacturaDetalle");
+                entity.HasOne(d => d.Factura)
+                      .WithMany(f => f.Detalles)
+                      .HasForeignKey(d => d.FacturaId);
             });
         }
     }
