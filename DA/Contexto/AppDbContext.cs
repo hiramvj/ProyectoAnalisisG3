@@ -30,6 +30,7 @@ namespace DA.Contexto
         public DbSet<PedidoVenta> PedidoVentas { get; set; }
         public DbSet<PedidoVentaDetalle> PedidoVentaDetalles { get; set; }
         public DbSet<ProveedorDto> Proveedores { get; set; }
+        public DbSet<MetodoPagoDto> MetodosPago { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,6 +89,17 @@ namespace DA.Contexto
                 entity.Property(p => p.Correo).HasMaxLength(150);
                 entity.Property(p => p.Telefono).HasMaxLength(50);
                 entity.Property(p => p.Direccion).HasMaxLength(250);
+            });
+            modelBuilder.Entity<MetodoPagoDto>(entity =>
+            {
+                entity.HasKey(x => x.MetodoPagoId);
+
+                // ✅ Tabla real en Supabase 
+                entity.ToTable("MetodoPago");
+
+                // ✅ Columnas reales 
+                entity.Property(x => x.MetodoPagoId).HasColumnName("metodopagoid");
+                entity.Property(x => x.Nombre).HasColumnName("nombre").HasMaxLength(150);
             });
         }
     }

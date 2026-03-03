@@ -24,6 +24,38 @@
         </div>
     </div>
 </div>
+<div class="card border-0 shadow-sm mb-3" style="border-radius:14px;">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label mb-1">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text"
+                           name="q"
+                           value="@(ViewBag.Q ?? "")"
+                           class="form-control"
+                           placeholder="Cédula, nombre o correo..." />
+                </div>
+                <small class="text-muted">Filtra por Identificación, Nombre o Correo.</small>
+            </div>
+
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
+                </button>
+            </div>
+
+            <div class="col-md-2 d-grid">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Nuevo Cliente</a>

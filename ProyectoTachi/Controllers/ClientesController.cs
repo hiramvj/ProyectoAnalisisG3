@@ -13,13 +13,28 @@ namespace ProyectoTachi.Controllers
             _flujo = flujo;
         }
 
-        // LISTA ACTIVOS
-        public async Task<IActionResult> Index()
+        // LISTA ACTIVOS + FILTRO
+        [HttpGet]
+        public async Task<IActionResult> Index(string? q)
         {
             var lista = await _flujo.ObtenerTodosAsync(true);
 
-            // total para el cuadrito
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+
+                lista = lista
+                    .Where(c =>
+                        (!string.IsNullOrWhiteSpace(c.Identificacion) && c.Identificacion.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(c.NombreCompleto) && c.NombreCompleto.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(c.Correo) && c.Correo.Contains(q, StringComparison.OrdinalIgnoreCase))
+                    )
+                    .ToList();
+            }
+
+            // El cuadrito ahora refleja lo filtrado
             ViewBag.TotalClientesActivos = lista?.Count ?? 0;
+            ViewBag.Q = q;
 
             return View(lista);
         }

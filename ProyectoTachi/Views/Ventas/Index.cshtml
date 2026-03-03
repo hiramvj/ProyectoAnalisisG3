@@ -42,6 +42,14 @@
                                 <label class="form-label">Fecha</label>
                                 <input class="form-control" value="@DateTime.Now.ToString("dd/MM/yyyy")" disabled />
                             </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" asp-for="MetodoPagoId" asp-items="ViewBag.MetodosPago">
+                                        <option value="">-- Seleccione --</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">

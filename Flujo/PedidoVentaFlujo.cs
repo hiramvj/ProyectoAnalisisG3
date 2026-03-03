@@ -51,5 +51,14 @@ namespace Flujo
 
             return pedidoId;
         }
+        public async Task<List<PedidoVentaListadoDto>> ListarAsync(string? q,DateTime? desde,DateTime? hasta,int? clienteId,string? estado,int? metodoPagoId)
+        {
+            return await _pedidoDA.ListarAsync(q, desde, hasta, clienteId, estado, metodoPagoId);
+        }
+        public Task<PedidoVentaDetalleDto?> ObtenerDetalleAsync(int pedidoVentaId)
+    => _pedidoDA.ObtenerDetalleAsync(pedidoVentaId);
+
+        public async Task<bool> EditarEncabezadoAsync(PedidoVentaEditarDto dto)
+            => (await _pedidoDA.ActualizarEncabezadoAsync(dto)) > 0;
     }
 }

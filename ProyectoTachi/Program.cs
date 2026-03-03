@@ -142,19 +142,6 @@ static async Task SeedAdminAsync(WebApplication app)
     var renameScript = new System.Text.StringBuilder();
     renameScript.AppendLine("DO $$ DECLARE prop_record RECORD; BEGIN ");
     renameScript.AppendLine("BEGIN ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS \"Stock\" NUMERIC(18,2) NOT NULL DEFAULT 0; EXCEPTION WHEN others THEN NULL; END;");
-    foreach (var entity in context.Model.GetEntityTypes())
-    {
-        var tName = entity.GetTableName();
-        if (tName == null || tName.StartsWith("AspNet")) continue;
-        
-        foreach (var prop in entity.GetProperties())
-        {
-            var colName = prop.GetColumnName(Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table(tName, null));
-            if (colName == null) continue;
-            
-            renameScript.AppendLine($"BEGIN ALTER TABLE \"{tName}\" RENAME COLUMN {colName.ToLower()} TO \"{colName}\"; EXCEPTION WHEN undefined_column THEN NULL; END;");
-        }
-    }
     renameScript.AppendLine(@"
 CREATE OR REPLACE FUNCTION public.sp_factura_creardesdepedido(p_pedidoventaid integer)
  RETURNS integer

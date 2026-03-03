@@ -21,15 +21,21 @@ namespace ProyectoTachi.Controllers
             _facturaFlujo = facturaFlujo;
             _db = db;
         }
-
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Historial(string? q, DateTime? desde, DateTime? hasta, int? clienteId, string? estado, int? metodoPagoId)
         {
-            await CargarClientesAsync();
-            await CargarProductosAsync();
-            return View(new PedidoVentaCrearDto());
-        }
+            await CargarClientesAsync(clienteId);
+            await CargarMetodosPagoAsync(metodoPagoId);
 
+            ViewBag.Q = q;
+            ViewBag.Desde = desde?.ToString("yyyy-MM-dd");
+            ViewBag.Hasta = hasta?.ToString("yyyy-MM-dd");
+            ViewBag.Estado = estado;
+            ViewBag.MetodoPagoId = metodoPagoId;
+
+            var lista = await _pedidoFlujo.ListarAsync(q, desde, hasta, clienteId, estado, metodoPagoId);
+            return View(lista); // ✅ va a Views/Ventas/Historial.cshtml
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearPedido(PedidoVentaCrearDto dto)
@@ -38,16 +44,28 @@ namespace ProyectoTachi.Controllers
             {
                 var pedidoId = await _pedidoFlujo.CrearPedidoAsync(dto);
                 TempData["Ok"] = $"Pedido creado: {pedidoId}";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(CrearPedido));
             }
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
                 await CargarClientesAsync(dto.ClienteId);
                 await CargarProductosAsync();
+                await CargarMetodosPagoAsync(dto.MetodoPagoId); // ✅
                 return View("Index", dto);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            await CargarClientesAsync();
+            await CargarProductosAsync();
+            await CargarMetodosPagoAsync(); 
+            return View(new PedidoVentaCrearDto());
+        }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -64,6 +82,58 @@ namespace ProyectoTachi.Controllers
                 TempData["Error"] = ex.Message;
                 return RedirectToAction(nameof(Index));
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Detalle(int id)
+        {
+            var dto = await _pedidoFlujo.ObtenerDetalleAsync(id);
+            if (dto == null) return NotFound();
+            return View(dto); // Views/Ventas/Detalle.cshtml
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var det = await _pedidoFlujo.ObtenerDetalleAsync(id);
+            if (det == null) return NotFound();
+
+            await CargarMetodosPagoAsync(det.MetodoPagoId);
+
+            var dto = new PedidoVentaEditarDto
+            {
+                PedidoVentaId = det.PedidoVentaId,
+                Estado = det.Estado,
+                MetodoPagoId = det.MetodoPagoId,
+                Observaciones = det.Observaciones
+            };
+
+            return View(dto); // Views/Ventas/Editar.cshtml
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(PedidoVentaEditarDto dto)
+        {
+            if (dto.PedidoVentaId <= 0)
+                ModelState.AddModelError("", "Pedido inválido.");
+
+            if (string.IsNullOrWhiteSpace(dto.Estado))
+                ModelState.AddModelError(nameof(dto.Estado), "Estado requerido.");
+
+            if (!ModelState.IsValid)
+            {
+                await CargarMetodosPagoAsync(dto.MetodoPagoId);
+                return View(dto);
+            }
+
+            var ok = await _pedidoFlujo.EditarEncabezadoAsync(dto);
+            if (!ok)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar el pedido.");
+                await CargarMetodosPagoAsync(dto.MetodoPagoId);
+                return View(dto);
+            }
+
+            return RedirectToAction(nameof(Historial));
         }
 
         private async Task CargarClientesAsync(int? seleccionado = null)
@@ -82,7 +152,15 @@ namespace ProyectoTachi.Controllers
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
 
-            ViewBag.Productos = productos; // lo usamos para armar líneas
+            ViewBag.Productos = productos; 
+        }
+        private async Task CargarMetodosPagoAsync(int? seleccionado = null)
+        {
+            var metodos = await _db.MetodosPago.AsNoTracking()
+                .OrderBy(m => m.Nombre)
+                .ToListAsync();
+
+            ViewBag.MetodosPago = new SelectList(metodos, "MetodoPagoId", "Nombre", seleccionado);
         }
     }
 }

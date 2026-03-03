@@ -1,0 +1,86 @@
+﻿@model Abstracciones.Modelos.PedidoVentaDetalleDto
+@{
+    ViewData["Title"] = "Detalle Pedido";
+}
+
+<div class="tachi-pagehead">
+    <div>
+        <h2>Pedido #@Model.NumeroPedido</h2>
+        <small>@Model.FechaPedido.ToString("dd/MM/yyyy") • @Model.ClienteNombre</small>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Editar" asp-route-id="@Model.PedidoVentaId" class="btn btn-warning btn-pill px-3">
+            Editar
+        </a>
+        <a asp-action="Historial" class="btn btn-outline-secondary btn-pill px-3">
+            Volver
+        </a>
+    </div>
+</div>
+
+<div class="tachi-pillbar mb-3">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <b>Estado:</b>
+            @if (Model.Estado == "CREADA")
+            {
+                <span class="badge tachi-badge bg-warning text-dark ms-1">CREADA</span>
+            }
+            else if (Model.Estado == "ENTREGADA")
+            {
+                <span class="badge tachi-badge bg-success ms-1">ENTREGADA</span>
+            }
+            else if (Model.Estado == "CANCELADA")
+            {
+                <span class="badge tachi-badge bg-danger ms-1">CANCELADA</span>
+            }
+            else
+            {
+                <span class="badge tachi-badge bg-secondary ms-1">@Model.Estado</span>
+            }
+        </div>
+
+        <div class="col-md-3">
+            <b>Método pago:</b> @Model.MetodoPagoNombre
+        </div>
+
+        <div class="col-md-6">
+            <b>Observaciones:</b> @Model.Observaciones
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3 tachi-card-pro">
+    <div class="card-body p-0">
+        <table class="table table-bordered table-striped tachi-table mb-0">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="text-end" style="width:110px;">Cant.</th>
+                    <th class="text-end" style="width:140px;">Precio</th>
+                    <th class="text-end" style="width:140px;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var l in Model.Lineas)
+                {
+                    <tr>
+                        <td class="fw-semibold">@l.ProductoNombre</td>
+                        <td class="text-end">@l.Cantidad</td>
+                        <td class="text-end">₡ @l.PrecioUnitario.ToString("N2")</td>
+                        <td class="text-end fw-bold">₡ @l.TotalLinea.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card tachi-totals">
+    <div class="card-body text-end">
+        <div class="mb-1"><b>Subtotal:</b> ₡ @Model.Subtotal.ToString("N2")</div>
+        <div class="mb-1"><b>IVA (13%):</b> ₡ @Model.IVA.ToString("N2")</div>
+        <div class="total-strong"><b>Total:</b> ₡ @Model.Total.ToString("N2")</div>
+    </div>
+</div>

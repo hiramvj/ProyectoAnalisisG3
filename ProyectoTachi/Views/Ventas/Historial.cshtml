@@ -1,0 +1,160 @@
+﻿@model List<Abstracciones.Modelos.PedidoVentaListadoDto>
+@{
+    ViewData["Title"] = "Historial de Ventas";
+}
+
+<div class="tachi-pagehead">
+    <div>
+        <h2>Historial de Ventas</h2>
+        <small>Filtrá por fechas, cliente, estado o método de pago.</small>
+    </div>
+
+    <a asp-action="Index" class="btn btn-success btn-pill px-3">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Pedido
+    </a>
+</div>
+
+<div class="card mb-3 tachi-card-pro tachi-filters">
+    <div class="card-body">
+        <form method="get" asp-action="Historial">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-4">
+                    <label class="form-label">Buscar</label>
+                    <input class="form-control"
+                           name="q"
+                           value="@(ViewBag.Q ?? "")"
+                           placeholder="Número, cliente, estado..." />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Desde</label>
+                    <input type="date"
+                           class="form-control"
+                           name="desde"
+                           value="@(ViewBag.Desde ?? "")" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Hasta</label>
+                    <input type="date"
+                           class="form-control"
+                           name="hasta"
+                           value="@(ViewBag.Hasta ?? "")" />
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Cliente</label>
+                    <select name="clienteId"
+                            class="form-select"
+                            asp-items="ViewBag.Clientes">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Método pago</label>
+                    <select name="metodoPagoId"
+                            class="form-select"
+                            asp-items="ViewBag.MetodosPago">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">-- Todos --</option>
+                        <option value="CREADA" selected="@(ViewBag.Estado == "CREADA")">CREADA</option>
+                        <option value="ENTREGADA" selected="@(ViewBag.Estado == "ENTREGADA")">ENTREGADA</option>
+                        <option value="CANCELADA" selected="@(ViewBag.Estado == "CANCELADA")">CANCELADA</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-1 d-grid">
+                    <button class="btn btn-primary">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <a asp-action="Historial" class="link-soft">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card tachi-card-pro">
+    <div class="card-body p-0">
+        <table class="table table-bordered table-striped tachi-table mb-0">
+            <thead>
+                <tr>
+                    <th style="width:90px;">#</th>
+                    <th style="width:140px;">Fecha</th>
+                    <th>Cliente</th>
+                    <th style="width:180px;">Método Pago</th>
+                    <th style="width:140px;">Estado</th>
+                    <th class="text-center tachi-actions-col">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var x in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@x.NumeroPedido</td>
+                            <td>@x.FechaPedido.ToString("dd/MM/yyyy")</td>
+                            <td>@x.ClienteNombre</td>
+                            <td>@(string.IsNullOrEmpty(x.MetodoPagoNombre) ? "-" : x.MetodoPagoNombre)</td>
+                            <td>
+                                @if (x.Estado == "CREADA")
+                                {
+                                    <span class="badge tachi-badge bg-warning text-dark">CREADA</span>
+                                }
+                                else if (x.Estado == "ENTREGADA")
+                                {
+                                    <span class="badge tachi-badge bg-success">ENTREGADA</span>
+                                }
+                                else if (x.Estado == "CANCELADA")
+                                {
+                                    <span class="badge tachi-badge bg-danger">CANCELADA</span>
+                                }
+                                else
+                                {
+                                    <span class="badge tachi-badge bg-secondary">@x.Estado</span>
+                                }
+                            </td>
+
+                            <td class="text-center tachi-actions-col">
+                                <a asp-action="Detalle"
+                                   asp-route-id="@x.PedidoVentaId"
+                                   class="btn btn-sm btn-outline-secondary tachi-btn-mini me-1">
+                                    Ver
+                                </a>
+
+                                <a asp-action="Editar"
+                                   asp-route-id="@x.PedidoVentaId"
+                                   class="btn btn-sm btn-outline-warning tachi-btn-mini">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No hay registros que coincidan con los filtros aplicados.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

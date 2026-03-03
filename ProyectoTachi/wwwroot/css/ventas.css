@@ -1,0 +1,176 @@
+﻿/* =========================
+   VENTAS / HISTORIAL / DETALLE
+   ========================= */
+
+/* Page header (títulos + botón) */
+.tachi-pagehead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+    .tachi-pagehead h2 {
+        margin: 0;
+        font-weight: 900;
+        color: #0b1f33;
+        letter-spacing: .2px;
+    }
+
+    .tachi-pagehead small {
+        color: #6b7280;
+    }
+
+/* Card pro */
+.tachi-card-pro {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,.06);
+    box-shadow: 0 10px 26px rgba(0,0,0,.06);
+}
+
+    .tachi-card-pro .card-body {
+        padding: 16px;
+    }
+
+/* Filtros */
+.tachi-filters .form-label {
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.tachi-filters .form-control,
+.tachi-filters .form-select {
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid #e8ecf5;
+}
+
+    .tachi-filters .form-control:focus,
+    .tachi-filters .form-select:focus {
+        box-shadow: 0 0 0 .18rem rgba(37,99,235,.12);
+        border-color: rgba(37,99,235,.35);
+    }
+
+.tachi-filters .btn {
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.tachi-filters .link-soft {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+    .tachi-filters .link-soft:hover {
+        text-decoration: underline;
+    }
+
+/* Tabla pro */
+.tachi-table {
+    margin: 0;
+    border: 0;
+}
+
+    .tachi-table thead th {
+        background: #f7f9fc;
+        border-bottom: 1px solid #e9eef5 !important;
+        font-weight: 800;
+        color: #0b1f33;
+        padding: 12px 12px;
+    }
+
+    .tachi-table tbody td {
+        padding: 12px 12px;
+        border-color: #edf2f7;
+    }
+
+    .tachi-table tbody tr:hover {
+        background: #fbfcff;
+    }
+
+/* Acciones */
+.tachi-actions-col {
+    width: 170px;
+    white-space: nowrap;
+}
+
+.tachi-btn-mini {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 7px 10px;
+}
+
+/* Badges estado */
+.badge.tachi-badge {
+    padding: .45rem .6rem;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: .2px;
+}
+
+/* Detalle pedido */
+.tachi-pillbar {
+    background: #f7f9fc;
+    border: 1px solid #e9eef5;
+    border-radius: 14px;
+    padding: 10px 12px;
+}
+
+    .tachi-pillbar b {
+        color: #0b1f33;
+    }
+
+/* Totales */
+.tachi-totals {
+    background: #fff;
+    border: 1px solid #e9eef5;
+    border-radius: 16px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.05);
+}
+
+    .tachi-totals .card-body {
+        padding: 14px 16px;
+    }
+
+    .tachi-totals .total-strong {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: #0b1f33;
+    }
+
+/* Form editar pedido */
+.tachi-formbox {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 16px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.06);
+    padding: 16px;
+}
+
+    .tachi-formbox h2 {
+        margin: 0 0 12px;
+        font-weight: 900;
+        color: #0b1f33;
+    }
+
+    .tachi-formbox .form-label {
+        font-weight: 800;
+        color: #334155;
+    }
+
+    .tachi-formbox .form-control,
+    .tachi-formbox .form-select {
+        border-radius: 12px;
+        padding: 10px 12px;
+        border: 1px solid #e8ecf5;
+    }
+
+        .tachi-formbox .form-control:focus,
+        .tachi-formbox .form-select:focus {
+            box-shadow: 0 0 0 .18rem rgba(37,99,235,.12);
+            border-color: rgba(37,99,235,.35);
+        }
