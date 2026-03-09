@@ -22,6 +22,11 @@ namespace ProyectoTachi.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return View(new DashboardViewModel());
+            }
+
             // Producto Metrics
             var productosActivos = await _productoFlujo.ObtenerTodosAsync(true);
             var productosInactivos = await _productoFlujo.ObtenerTodosAsync(false);
