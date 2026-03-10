@@ -68,7 +68,7 @@
             <th>Identificación</th>
             <th>Nombre</th>
             <th>Correo</th>
-            <th>Acciones</th>
+            <th>Acciones</th>   
         </tr>
     </thead>
     <tbody>
@@ -79,6 +79,7 @@
                 <td>@item.NombreCompleto</td>
                 <td>@item.Correo</td>
                 <td>
+                    <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-info text-white">Ver</a>
                     <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-warning">Editar</a>
 
                     <form asp-action="Desactivar" asp-route-id="@item.ClienteId"

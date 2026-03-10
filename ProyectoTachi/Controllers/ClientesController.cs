@@ -115,5 +115,13 @@ namespace ProyectoTachi.Controllers
             await _flujo.CambiarEstadoAsync(id, true);
             return RedirectToAction(nameof(Inactivos));
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            var cliente = await _flujo.ObtenerPorIdAsync(id);
+            if (cliente == null)
+                return NotFound();
+
+            return View(cliente);
+        }
     }
 }
