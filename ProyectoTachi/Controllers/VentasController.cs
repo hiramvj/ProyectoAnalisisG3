@@ -44,7 +44,7 @@ namespace ProyectoTachi.Controllers
             {
                 var pedidoId = await _pedidoFlujo.CrearPedidoAsync(dto);
                 TempData["Ok"] = $"Pedido creado: {pedidoId}";
-                return RedirectToAction(nameof(CrearPedido));
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
@@ -79,7 +79,10 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message;
+                TempData["Error"] = ex.InnerException?.Message
+                    ?? ex.GetBaseException().Message
+                    ?? ex.Message;
+
                 return RedirectToAction(nameof(Index));
             }
         }

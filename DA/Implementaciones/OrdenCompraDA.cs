@@ -23,12 +23,6 @@ namespace DA.Implementaciones
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // Calcular subtotales
-                decimal subtotal = dto.Lineas.Sum(l => l.Cantidad * l.CostoUnitario);
-                decimal impuesto = subtotal * 0.13m;
-                decimal total = subtotal + impuesto;
-
-                // Generar consecutivo
                 int maxId = await _db.OrdenesCompra.MaxAsync(o => (int?)o.OrdenCompraId) ?? 0;
                 string numeroOrden = "OC-" + (maxId + 1).ToString("D6");
 
@@ -36,12 +30,13 @@ namespace DA.Implementaciones
                 {
                     ProveedorId = dto.ProveedorId,
                     Observaciones = dto.Observaciones,
-                    FechaEmision = DateTime.UtcNow, // o Now dependiendo de su timezone
+                    FechaOrden = DateTime.UtcNow,
                     Estado = "CREADA",
                     NumeroOrden = numeroOrden,
-                    Subtotal = subtotal,
-                    Impuesto = impuesto,
-                    Total = total
+
+                    // OJO con esto:
+                    // si BodegaId es obligatorio en la BD, hay que mandarlo
+                    BodegaId = 1
                 };
 
                 _db.OrdenesCompra.Add(orden);
@@ -56,6 +51,7 @@ namespace DA.Implementaciones
                         Cantidad = linea.Cantidad,
                         CostoUnitario = linea.CostoUnitario
                     };
+
                     _db.OrdenCompraDetalles.Add(detalle);
                 }
 

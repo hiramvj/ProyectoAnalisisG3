@@ -53,10 +53,10 @@ namespace DA.Implementaciones
             existing.Precio = p.Precio;
             existing.Stock = p.Stock;
             existing.StockMinimo = p.StockMinimo;
-            // FechaCreacion and Activo might strictly not change here or depend on logic, keeping unsafe updates minimal
-            
-            _db.Productos.Update(existing);
-            return await _db.SaveChangesAsync(); 
+
+            existing.FechaCreacion = DateTime.SpecifyKind(existing.FechaCreacion, DateTimeKind.Utc);
+
+            return await _db.SaveChangesAsync();
         }
 
         public async Task<int> CambiarEstadoAsync(int productoId, bool activo)

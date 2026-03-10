@@ -50,9 +50,8 @@ namespace DA.Implementaciones
             existing.Correo = c.Correo;
             existing.Telefono = c.Telefono;
             existing.Direccion = c.Direccion;
-            // Activo and FechaCreacion usually not updated here
+            existing.FechaCreacion = DateTime.SpecifyKind(existing.FechaCreacion, DateTimeKind.Utc);
 
-            _db.Clientes.Update(existing);
             return await _db.SaveChangesAsync();
         }
 

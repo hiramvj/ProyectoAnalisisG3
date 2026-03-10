@@ -31,6 +31,10 @@ namespace DA.Contexto
         public DbSet<PedidoVentaDetalle> PedidoVentaDetalles { get; set; }
         public DbSet<ProveedorDto> Proveedores { get; set; }
         public DbSet<MetodoPagoDto> MetodosPago { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
+        public DbSet<FacturaDetalle> FacturaDetalles { get; set; }
+        public DbSet<OrdenCompra> OrdenesCompra { get; set; }
+        public DbSet<OrdenCompraDetalle> OrdenCompraDetalles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

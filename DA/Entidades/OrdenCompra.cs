@@ -11,33 +11,27 @@ namespace DA.Entidades
         public int OrdenCompraId { get; set; }
 
         [Column("bodegaid")]
-        public int? BodegaId { get; set; } // Puede ser null si aún no se mapea estrictamente o no es obligatorio en UI.
+        public int? BodegaId { get; set; }
 
         [Column("proveedorid")]
         public int ProveedorId { get; set; }
 
         [Column("numeroorden")]
-        public string? NumeroOrden { get; set; } // O int dependiendo de la db, la DB dice varchar(50) por default o int. 
+        public string? NumeroOrden { get; set; }
 
-        [Column("fechaemision")]
-        public DateTime FechaEmision { get; set; }
+        // ESTA ES LA COLUMNA REAL EN LA BD
+        [Column("fechaorden")]
+        public DateTime FechaOrden { get; set; }
+
+        [Column("fechaesperada")]
+        public DateTime? FechaEsperada { get; set; }
 
         [Column("estado")]
-        public string Estado { get; set; } = "CREADA"; // CREADA, APROBADA, RECIBIDA, CANCELADA
+        public string Estado { get; set; } = "CREADA";
 
         [Column("observaciones")]
         public string? Observaciones { get; set; }
 
-        [Column("subtotal", TypeName = "decimal(18,2)")]
-        public decimal Subtotal { get; set; }
-
-        [Column("impuesto", TypeName = "decimal(18,2)")]
-        public decimal Impuesto { get; set; }
-
-        [Column("total", TypeName = "decimal(18,2)")]
-        public decimal Total { get; set; }
-
-        // Navegación
         public ICollection<OrdenCompraDetalle> Detalles { get; set; } = new List<OrdenCompraDetalle>();
     }
 }

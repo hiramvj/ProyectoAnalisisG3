@@ -43,7 +43,10 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message;
+                TempData["Error"] = ex.InnerException?.Message
+                    ?? ex.GetBaseException().Message
+                    ?? ex.Message;
+
                 await CargarProveedoresAsync(dto.ProveedorId);
                 await CargarProductosAsync();
                 return View("Index", dto);

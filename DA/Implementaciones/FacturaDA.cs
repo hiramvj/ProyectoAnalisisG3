@@ -16,6 +16,8 @@ namespace DA.Implementaciones
 
         public async Task<int> CrearDesdePedidoAsync(int pedidoVentaId)
         {
+            if (await _db.Facturas.AnyAsync(f => f.PedidoVentaId == pedidoVentaId))
+                throw new Exception("Ese pedido ya fue facturado.");
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
@@ -40,11 +42,14 @@ namespace DA.Implementaciones
                     Subtotal = subtotal,
                     Impuesto = impuesto,
                     Total = total,
-                    Estado = "Emitida"
+                    Estado = "EMITIDA"
                 };
 
                 _db.Facturas.Add(factura);
                 await _db.SaveChangesAsync();
+
+                if (pedido.Detalles == null || !pedido.Detalles.Any())
+                    throw new Exception("El pedido no tiene detalles.");
 
                 foreach (var det in pedido.Detalles)
                 {
@@ -58,15 +63,17 @@ namespace DA.Implementaciones
                     _db.FacturaDetalles.Add(factDet);
 
                     var producto = await _db.Productos.FindAsync(det.ProductoId);
-                    if (producto != null)
-                    {
-                        producto.Stock -= det.Cantidad;
-                        _db.Productos.Update(producto);
-                    }
+                    if (producto == null)
+                        throw new Exception($"No se encontró el producto con id {det.ProductoId}");
+
+                    if (producto.Stock < det.Cantidad)
+                        throw new Exception($"Stock insuficiente para el producto {producto.Nombre}");
+
+                    producto.Stock -= det.Cantidad;
                 }
 
                 pedido.Estado = "ENTREGADA";
-                _db.PedidoVentas.Update(pedido);
+                pedido.FechaPedido = DateTime.SpecifyKind(pedido.FechaPedido, DateTimeKind.Utc);
 
                 await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
