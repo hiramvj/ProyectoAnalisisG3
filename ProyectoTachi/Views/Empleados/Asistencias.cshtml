@@ -1,0 +1,90 @@
+﻿@model List<Abstracciones.Modelos.AsistenciaDto>
+@using Abstracciones.Modelos
+
+@{
+    ViewData["Title"] = "Asistencias";
+    var empleado = ViewBag.Empleado as EmpleadoDto;
+    var nueva = ViewBag.NuevaAsistencia as AsistenciaDto;
+}
+
+<h2 class="mb-2">Asistencias</h2>
+<p class="text-muted">
+    Empleado: <strong>@empleado?.NombreCompleto</strong>
+</p>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <strong>Registrar asistencia / ausencia</strong>
+    </div>
+    <div class="card-body">
+        <form asp-action="RegistrarAsistencia" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="EmpleadoId" value="@nueva?.EmpleadoId" />
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" name="Fecha" class="form-control"
+                           value="@nueva?.Fecha.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="Tipo" class="form-select" required>
+                        <option value="ASISTENCIA">ASISTENCIA</option>
+                        <option value="AUSENCIA">AUSENCIA</option>
+                        <option value="VACACIONES">VACACIONES</option>
+                        <option value="PERMISO">PERMISO</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Hora entrada</label>
+                    <input type="time" name="HoraEntrada" class="form-control" />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Hora salida</label>
+                    <input type="time" name="HoraSalida" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </form>
+    </div>
+</div>
+
+<table class="table table-hover table-bordered shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Hora Entrada</th>
+            <th>Hora Salida</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    No hay registros.
+                </td>
+            </tr>
+        }
+        else
+        {
+            foreach (var item in Model.OrderByDescending(x => x.Fecha))
+            {
+                <tr>
+                    <td>@item.Fecha.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Tipo</td>
+                    <td>@item.HoraEntrada</td>
+                    <td>@item.HoraSalida</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

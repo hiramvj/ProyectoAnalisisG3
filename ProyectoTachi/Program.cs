@@ -37,25 +37,23 @@ builder.Services.AddScoped<IFacturaDA, FacturaDA>();
 builder.Services.AddScoped<IFacturaFlujo, FacturaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IClienteDA, DA.Implementaciones.ClienteDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IClienteFlujo, Flujo.ClienteFlujo>();
-
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IProveedorDA, DA.Implementaciones.ProveedorDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IProveedorFlujo, Flujo.ProveedorFlujo>();
-
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IPedidoVentaDA, DA.Implementaciones.PedidoVentaDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IPedidoVentaFlujo, Flujo.PedidoVentaFlujo>();
-
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IFacturaDA, DA.Implementaciones.FacturaDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IFacturaFlujo, Flujo.FacturaFlujo>();
-
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IPedidoVentaDA, PedidoVentaDA>();
 builder.Services.AddScoped<IPedidoVentaFlujo, PedidoVentaFlujo>();
 builder.Services.AddScoped<IProveedorDA, ProveedorDA>();
 builder.Services.AddScoped<IProveedorFlujo, ProveedorFlujo>();
-
+builder.Services.AddScoped<IAsistenciaDA, AsistenciaDA>();
+builder.Services.AddScoped<IAsistenciaFlujo, AsistenciaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IOrdenCompraDA, DA.Implementaciones.OrdenCompraDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IOrdenCompraFlujo, Flujo.OrdenCompraFlujo>();
-
+builder.Services.AddScoped<IEmpleadoDA, EmpleadoDA>();
+builder.Services.AddScoped<IEmpleadoFlujo, EmpleadoFlujo>();
 builder.Services.AddScoped<ITransportistaDA, TransportistaDA>();
 builder.Services.AddScoped<IRutaEntregaDA, RutaEntregaDA>();
 builder.Services.AddScoped<IRutaEntregaDetalleDA, RutaEntregaDetalleDA>();

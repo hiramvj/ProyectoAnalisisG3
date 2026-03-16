@@ -79,6 +79,12 @@
                         <i class="fa-solid fa-truck"></i>
                         <span>Proveedores</span>
                     </a>
+                    <a class="tachi-link"
+                       asp-controller="Empleados"
+                       asp-action="Index">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>Empleados</span>
+                    </a>
                     
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Compras" ? "active" : "")"
                        asp-controller="Compras" asp-action="Index">

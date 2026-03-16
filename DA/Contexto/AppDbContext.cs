@@ -38,6 +38,8 @@ namespace DA.Contexto
         public DbSet<Transportista> Transportistas { get; set; }
         public DbSet<RutaEntrega> RutasEntrega { get; set; }
         public DbSet<RutaEntregaDetalle> RutasEntregaDetalle { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
+        public DbSet<Asistencia> Asistencias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

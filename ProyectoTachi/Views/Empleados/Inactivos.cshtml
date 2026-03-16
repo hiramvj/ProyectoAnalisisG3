@@ -1,0 +1,72 @@
+﻿@model List<Abstracciones.Modelos.EmpleadoDto>
+
+@{
+    ViewData["Title"] = "Empleados Inactivos";
+}
+
+<h2 class="mb-2">Empleados Inactivos</h2>
+<p class="text-muted">Administra tus empleados inactivos.</p>
+
+<div class="d-flex justify-content-end mb-3">
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Volver
+    </a>
+
+</div>
+
+<table class="table table-hover table-bordered shadow-sm">
+
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Identificación</th>
+            <th>Puesto</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.EmpleadoId</td>
+
+                <td>@item.NombreCompleto</td>
+
+                <td>@item.Identificacion</td>
+
+                <td>@item.Puesto</td>
+
+                <td>@item.Telefono</td>
+
+                <td>
+                    <span class="badge bg-secondary">Inactivo</span>
+                </td>
+
+                <td>
+
+                    <form asp-action="Activar"
+                          asp-route-id="@item.EmpleadoId"
+                          method="post"
+                          style="display:inline">
+
+                        <button class="btn btn-success btn-sm">
+                            Activar
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

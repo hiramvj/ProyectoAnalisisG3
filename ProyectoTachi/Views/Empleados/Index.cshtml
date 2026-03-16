@@ -1,0 +1,86 @@
+﻿@model List<Abstracciones.Modelos.EmpleadoDto>
+
+@{
+    ViewData["Title"] = "Empleados";
+}
+
+<h2 class="mb-2">Empleados</h2>
+<p class="text-muted">Administra tus empleados activos.</p>
+
+<div class="d-flex justify-content-end mb-3">
+
+    <a asp-action="Inactivos" class="btn btn-outline-secondary me-2">
+        Inactivos
+    </a>
+
+    <a asp-action="Create" class="btn btn-success">
+        + Agregar Empleado
+    </a>
+
+</div>
+
+<table class="table table-hover table-bordered shadow-sm">
+
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Identificación</th>
+            <th>Puesto</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.EmpleadoId</td>
+
+                <td>@item.NombreCompleto</td>
+
+                <td>@item.Identificacion</td>
+
+                <td>@item.Puesto</td>
+
+                <td>@item.Telefono</td>
+
+                <td>
+                    <span class="badge bg-success">Activo</span>
+                </td>
+
+                <td>
+                    <a asp-action="Asistencias"
+                       asp-route-id="@item.EmpleadoId"
+                       class="btn btn-info btn-sm me-1">
+                        Asistencias
+                    </a>
+                    <a asp-action="Edit"
+                       asp-route-id="@item.EmpleadoId"
+                       class="btn btn-warning btn-sm me-1">
+                        Editar
+                    </a>
+
+                    <form asp-action="Desactivar"
+                          asp-route-id="@item.EmpleadoId"
+                          method="post"
+                          style="display:inline">
+
+                        <button class="btn btn-danger btn-sm">
+                            Desactivar
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
