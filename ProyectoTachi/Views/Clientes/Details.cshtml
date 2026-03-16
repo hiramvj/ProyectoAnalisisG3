@@ -1,7 +1,9 @@
 ﻿@model Abstracciones.Modelos.ClienteDto
+@using Abstracciones.Modelos
 
 @{
     ViewData["Title"] = "Detalle del Cliente";
+    var historial = ViewBag.HistorialCompras as List<PedidoVentaListadoDto>;
 }
 
 <h2>Detalle del Cliente</h2>
@@ -53,5 +55,49 @@
             <a asp-action="Index" class="btn btn-secondary">Volver</a>
             <a asp-action="Edit" asp-route-id="@Model.ClienteId" class="btn btn-warning">Editar</a>
         </div>
+    </div>
+</div>
+<!-- HISTORIAL DE COMPRAS -->
+<div class="card shadow-sm border-0 mt-4" style="border-radius:14px;">
+    <div class="card-body">
+        <h4>Historial de Compras</h4>
+
+        @if (historial != null && historial.Any())
+        {
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th># Pedido</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Método de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in historial)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Ventas"
+                                   asp-action="Detalle"
+                                   asp-route-id="@p.PedidoVentaId"
+                                   class="fw-bold text-decoration-none">
+                                    #@p.NumeroPedido
+                                </a>
+                            </td>
+                            <td>@p.FechaPedido.ToString("dd/MM/yyyy")</td>
+                            <td>@p.Estado</td>
+                            <td>@p.MetodoPagoNombre</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info mt-3">
+                Este cliente aún no tiene compras registradas.
+            </div>
+        }
     </div>
 </div>

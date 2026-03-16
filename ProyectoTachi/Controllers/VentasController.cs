@@ -165,5 +165,10 @@ namespace ProyectoTachi.Controllers
 
             ViewBag.MetodosPago = new SelectList(metodos, "MetodoPagoId", "Nombre", seleccionado);
         }
+        public async Task<IActionResult> ProductosMasVendidos()
+        {
+            var productos = await _pedidoFlujo.ObtenerProductosMasVendidosAsync();
+            return View(productos);
+        }
     }
 }

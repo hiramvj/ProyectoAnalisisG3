@@ -7,10 +7,12 @@ namespace ProyectoTachi.Controllers
     public class ClientesController : Controller
     {
         private readonly IClienteFlujo _flujo;
+        private readonly IPedidoVentaFlujo _pedidoFlujo;
 
-        public ClientesController(IClienteFlujo flujo)
+        public ClientesController(IClienteFlujo flujo, IPedidoVentaFlujo pedidoFlujo)
         {
             _flujo = flujo;
+            _pedidoFlujo = pedidoFlujo;
         }
 
         // LISTA ACTIVOS + FILTRO
@@ -120,6 +122,10 @@ namespace ProyectoTachi.Controllers
             var cliente = await _flujo.ObtenerPorIdAsync(id);
             if (cliente == null)
                 return NotFound();
+
+            var historial = await _pedidoFlujo.ObtenerHistorialClienteAsync(id);
+
+            ViewBag.HistorialCompras = historial;
 
             return View(cliente);
         }

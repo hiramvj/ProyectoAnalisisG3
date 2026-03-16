@@ -159,5 +159,46 @@ namespace DA.Implementaciones
 
             return await _db.SaveChangesAsync();
         }
+        public async Task<List<PedidoVentaListadoDto>> ObtenerHistorialClienteAsync(int clienteId)
+        {
+            var query =
+                from p in _db.PedidoVentas.AsNoTracking()
+                join c in _db.Clientes.AsNoTracking() on p.ClienteId equals c.ClienteId
+                join m in _db.MetodosPago.AsNoTracking()
+                    on p.MetodoPagoId equals m.MetodoPagoId into mp
+                from m in mp.DefaultIfEmpty()
+                where p.ClienteId == clienteId
+                select new PedidoVentaListadoDto
+                {
+                    PedidoVentaId = p.PedidoVentaId,
+                    NumeroPedido = p.NumeroPedido,
+                    FechaPedido = p.FechaPedido,
+                    Estado = p.Estado,
+                    ClienteNombre = c.NombreCompleto,
+                    MetodoPagoNombre = m != null ? m.Nombre : "-"
+                };
+
+            return await query
+                .OrderByDescending(x => x.FechaPedido)
+                .ToListAsync();
+        }
+        public async Task<List<ProductoMasVendidoDto>> ObtenerProductosMasVendidosAsync()
+        {
+            var query =
+                from d in _db.PedidoVentaDetalles
+                join p in _db.Productos on d.ProductoId equals p.ProductoId
+                group d by new { p.ProductoId, p.Nombre } into g
+                select new ProductoMasVendidoDto
+                {
+                    ProductoId = g.Key.ProductoId,
+                    Nombre = g.Key.Nombre,
+                    CantidadVendida = g.Sum(x => x.Cantidad)
+                };
+
+            return await query
+                .OrderByDescending(x => x.CantidadVendida)
+                .Take(5)
+                .ToListAsync();
+        }
     }
 }

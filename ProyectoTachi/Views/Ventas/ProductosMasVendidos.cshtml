@@ -1,0 +1,68 @@
+﻿@model List<Abstracciones.Modelos.ProductoMasVendidoDto>
+
+@{
+    ViewData["Title"] = "Productos Más Vendidos";
+}
+
+<h2>Productos Más Vendidos</h2>
+
+<div class="card shadow-sm border-0 mt-3">
+    <div class="card-body">
+
+        <canvas id="graficoProductos"></canvas>
+
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad Vendida</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td>@p.Nombre</td>
+                        <td>@p.CantidadVendida</td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const labels = [
+        @foreach (var p in Model)
+        {
+                @: "@p.Nombre",
+        }
+    ];
+
+    const data = [
+        @foreach (var p in Model)
+        {
+                @: @p.CantidadVendida,
+        }
+    ];
+
+    const ctx = document.getElementById('graficoProductos');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cantidad Vendida',
+                data: data
+            }]
+        }
+    });
+
+</script>

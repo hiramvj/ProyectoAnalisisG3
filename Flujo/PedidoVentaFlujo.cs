@@ -60,5 +60,14 @@ namespace Flujo
 
         public async Task<bool> EditarEncabezadoAsync(PedidoVentaEditarDto dto)
             => (await _pedidoDA.ActualizarEncabezadoAsync(dto)) > 0;
+    
+    public async Task<List<PedidoVentaListadoDto>> ObtenerHistorialClienteAsync(int clienteId)
+        {
+            return await _pedidoDA.ObtenerHistorialClienteAsync(clienteId);
+        }
+        public async Task<List<ProductoMasVendidoDto>> ObtenerProductosMasVendidosAsync()
+        {
+            return await _pedidoDA.ObtenerProductosMasVendidosAsync();
+        }
     }
 }
