@@ -1,0 +1,59 @@
+﻿@model List<Abstracciones.Modelos.TransportistaDto>
+
+@{
+    ViewData["Title"] = "Transportistas Inactivos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Transportistas Inactivos</h2>
+        <small class="text-muted">Consulta y reactiva transportistas.</small>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Identificación</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th style="width:140px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay transportistas inactivos.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TransportistaId</td>
+                            <td>@item.NombreCompleto</td>
+                            <td>@item.Identificacion</td>
+                            <td>@item.Telefono</td>
+                            <td>Inactivo</td>
+                            <td>
+                                <form asp-action="Activar" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.TransportistaId" />
+                                    <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

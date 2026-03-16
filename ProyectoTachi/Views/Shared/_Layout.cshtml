@@ -58,7 +58,17 @@
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span>Historial Ventas</span>
                     </a>
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transportistas" ? "active" : "")"
+                       asp-controller="Transportistas" asp-action="Index">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>Transportistas</span>
+                    </a>
 
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Rutas" ? "active" : "")"
+                       asp-controller="Rutas" asp-action="Index">
+                        <i class="fa-solid fa-route"></i>
+                        <span>Rutas</span>
+                    </a>
                     <a class="tachi-link"
                        asp-controller="Productos" asp-action="Inactivos">
                         <i class="fa-solid fa-box-archive"></i>

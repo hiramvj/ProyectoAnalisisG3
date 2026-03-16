@@ -1,0 +1,61 @@
+﻿@model Abstracciones.Modelos.RutaEntregaDto
+
+@{
+    ViewData["Title"] = "Editar Ruta";
+}
+
+<h2 class="mb-3">Editar Ruta</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <input asp-for="RutaId" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="CodigoRuta" class="form-label"></label>
+                <input asp-for="CodigoRuta" class="form-control" />
+                <span asp-validation-for="CodigoRuta" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FechaProgramada" class="form-label"></label>
+                <input asp-for="FechaProgramada" type="date" class="form-control" />
+                <span asp-validation-for="FechaProgramada" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TransportistaId" class="form-label"></label>
+                <select asp-for="TransportistaId" asp-items="ViewBag.Transportistas" class="form-select">
+                    <option value="">Seleccione...</option>
+                </select>
+                <span asp-validation-for="TransportistaId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Estado" class="form-label"></label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="PLANIFICADA">PLANIFICADA</option>
+                    <option value="EN_RUTA">EN_RUTA</option>
+                    <option value="FINALIZADA">FINALIZADA</option>
+                    <option value="CANCELADA">CANCELADA</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Observaciones" class="form-label"></label>
+                <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Observaciones" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-warning">Guardar cambios</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

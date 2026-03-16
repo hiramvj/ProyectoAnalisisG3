@@ -56,6 +56,13 @@ builder.Services.AddScoped<IProveedorFlujo, ProveedorFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IOrdenCompraDA, DA.Implementaciones.OrdenCompraDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IOrdenCompraFlujo, Flujo.OrdenCompraFlujo>();
 
+builder.Services.AddScoped<ITransportistaDA, TransportistaDA>();
+builder.Services.AddScoped<IRutaEntregaDA, RutaEntregaDA>();
+builder.Services.AddScoped<IRutaEntregaDetalleDA, RutaEntregaDetalleDA>();
+builder.Services.AddScoped<ITransportistaFlujo, TransportistaFlujo>();
+builder.Services.AddScoped<IRutaEntregaFlujo, RutaEntregaFlujo>();
+builder.Services.AddScoped<IRutaEntregaDetalleFlujo, RutaEntregaDetalleFlujo>();
+
 var app = builder.Build();
 await SeedAdminAsync(app);
 await SeedProductsAsync(app);

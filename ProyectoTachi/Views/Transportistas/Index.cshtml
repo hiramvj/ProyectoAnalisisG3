@@ -1,0 +1,64 @@
+﻿@model List<Abstracciones.Modelos.TransportistaDto>
+
+@{
+    ViewData["Title"] = "Transportistas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Transportistas</h2>
+        <small class="text-muted">Administra tus transportistas activos.</small>
+    </div>
+
+    <div>
+        <a asp-action="Inactivos" class="btn btn-outline-secondary">Inactivos</a>
+        <a asp-action="Create" class="btn btn-success">+ Agregar Transportista</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Identificación</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th style="width:180px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay transportistas activos.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TransportistaId</td>
+                            <td>@item.NombreCompleto</td>
+                            <td>@item.Identificacion</td>
+                            <td>@item.Telefono</td>
+                            <td>@(item.Activo ? "Activo" : "Inactivo")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.TransportistaId" class="btn btn-sm btn-warning">Editar</a>
+
+                                <form asp-action="Desactivar" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.TransportistaId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
