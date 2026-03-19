@@ -1,0 +1,144 @@
+﻿@model IEnumerable<Abstracciones.Modelos.ReporteVentaDto>
+
+@{
+    ViewData["Title"] = "Reportes";
+    var filtro = ViewBag.Filtro as Abstracciones.Modelos.ReporteVentasFiltroDto
+                 ?? new Abstracciones.Modelos.ReporteVentasFiltroDto();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Reportes de Ventas</h2>
+        <small class="text-muted">Consulta ventas por fecha, cliente, producto y estado.</small>
+    </div>
+
+    <div>
+        <a asp-action="ExportarExcel"
+           asp-route-Desde="@filtro.Desde?.ToString("yyyy-MM-dd")"
+           asp-route-Hasta="@filtro.Hasta?.ToString("yyyy-MM-dd")"
+           asp-route-ClienteId="@filtro.ClienteId"
+           asp-route-ProductoId="@filtro.ProductoId"
+           asp-route-Estado="@filtro.Estado"
+           class="btn btn-success">
+            Exportar Excel
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label">Desde</label>
+                    <input type="date"
+                           class="form-control"
+                           name="Desde"
+                           value="@(filtro.Desde?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Hasta</label>
+                    <input type="date"
+                           class="form-control"
+                           name="Hasta"
+                           value="@(filtro.Hasta?.ToString("yyyy-MM-dd"))" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-select" name="ClienteId" asp-items="ViewBag.Clientes">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Producto</label>
+                    <select class="form-select" name="ProductoId" asp-items="ViewBag.Productos">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="Estado">
+                        <option value="">-- Todos --</option>
+                        <option value="CREADA" selected="@(filtro.Estado == "CREADA")">CREADA</option>
+                        <option value="ENTREGADA" selected="@(filtro.Estado == "ENTREGADA")">ENTREGADA</option>
+                        <option value="CANCELADA" selected="@(filtro.Estado == "CANCELADA")">CANCELADA</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">Limpiar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total Línea</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            No hay datos para mostrar.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.NumeroPedido</td>
+                            <td>@item.FechaPedido.ToString("dd/MM/yyyy")</td>
+                            <td>@item.ClienteNombre</td>
+                            <td>@item.ProductoNombre</td>
+                            <td>@item.Cantidad</td>
+                            <td>₡ @item.PrecioUnitario.ToString("N2")</td>
+                            <td>₡ @item.TotalLinea.ToString("N2")</td>
+                            <td>
+                                @if (item.Estado == "CREADA")
+                                {
+                                    <span class="badge bg-warning text-dark">CREADA</span>
+                                }
+                                else if (item.Estado == "ENTREGADA")
+                                {
+                                    <span class="badge bg-success">ENTREGADA</span>
+                                }
+                                else if (item.Estado == "CANCELADA")
+                                {
+                                    <span class="badge bg-danger">CANCELADA</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@item.Estado</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

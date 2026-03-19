@@ -60,6 +60,8 @@ builder.Services.AddScoped<IRutaEntregaDetalleDA, RutaEntregaDetalleDA>();
 builder.Services.AddScoped<ITransportistaFlujo, TransportistaFlujo>();
 builder.Services.AddScoped<IRutaEntregaFlujo, RutaEntregaFlujo>();
 builder.Services.AddScoped<IRutaEntregaDetalleFlujo, RutaEntregaDetalleFlujo>();
+builder.Services.AddScoped<IReporteDA, ReporteDA>();
+builder.Services.AddScoped<IReporteFlujo, ReporteFlujo>();
 
 var app = builder.Build();
 await SeedAdminAsync(app);

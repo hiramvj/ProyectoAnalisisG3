@@ -91,6 +91,11 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span>Órdenes de Compra</span>
                     </a>
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reportes" ? "active" : "")"
+                       asp-controller="Reportes" asp-action="Index">
+                        <i class="fa-solid fa-chart-column"></i>
+                        <span>Reportes</span>
+                    </a>
                 }
 
                 <div class="tachi-divider"></div>
