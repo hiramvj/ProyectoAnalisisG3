@@ -4,55 +4,66 @@
     ViewData["Title"] = "Productos Inactivos";
 }
 
-<div class="inventory-card">
-
-    <div class="inventory-header">
-        <h4>Productos Inactivos</h4>
-
-        <a asp-action="Index" class="btn btn-secondary btn-sm">
-            Volver a Activos
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Productos Inactivos</h2>
+        <small class="text-muted">Administra los productos inactivos.</small>
     </div>
 
-    <table class="table inventory-table">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Producto</th>
-                <th>Precio Unidad</th>
-                <th>Estado</th>
-                <th>Stock</th>
-                <th class="text-center">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <a asp-action="Index" class="btn btn-secondary">
+        Volver a Activos
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
                 <tr>
-                    <td>@item.SKU</td>
-                    <td>@item.Nombre</td>
-                    <td>₡ @item.Precio.ToString("N2")</td>
-                    <td>@item.Stock</td>
-                    <td>
-                        <span class="badge bg-secondary">Inactivo</span>
-                    </td>
-                    <td class="text-center">
-
-                        <form asp-action="Activar"
-                              asp-route-id="@item.ProductoId"
-                              method="post"
-                              style="display:inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-success action-btn">
-                                <i class="fa-solid fa-rotate"></i>
-                            </button>
-                        </form>
-
-                    </td>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Precio Unidad</th>
+                    <th>Estado</th>
+                    <th>Stock</th>
+                    <th style="width:180px;" class="text-center">Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay productos inactivos.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.SKU</td>
+                            <td>@item.Nombre</td>
+                            <td>₡ @item.Precio.ToString("N2")</td>
+                            <td>
+                                <span class="badge bg-secondary">Inactivo</span>
+                            </td>
+                            <td>@item.Stock</td>
+                            <td class="text-center">
+                                <form asp-action="Activar"
+                                      asp-route-id="@item.ProductoId"
+                                      method="post"
+                                      style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        Activar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

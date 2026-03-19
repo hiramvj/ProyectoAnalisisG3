@@ -3,25 +3,24 @@
     ViewData["Title"] = "Historial de Ventas";
 }
 
-<div class="tachi-pagehead">
+<div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2>Historial de Ventas</h2>
-        <small>Filtrá por fechas, cliente, estado o método de pago.</small>
+        <h2 class="mb-0">Historial de Ventas</h2>
+        <small class="text-muted">Filtrá por fechas, cliente, estado o método de pago.</small>
     </div>
 
-    <div class="d-flex gap-2">
-        <a asp-action="ProductosMasVendidos"
-           class="btn btn-outline-primary btn-pill px-3">
+    <div>
+        <a asp-action="ProductosMasVendidos" class="btn btn-outline-primary">
             <i class="bi bi-bar-chart-line me-1"></i> Productos Más Vendidos
         </a>
 
-        <a asp-action="Index" class="btn btn-success btn-pill px-3">
+        <a asp-action="Index" class="btn btn-success">
             <i class="bi bi-plus-circle me-1"></i> Nuevo Pedido
         </a>
     </div>
 </div>
 
-<div class="card mb-3 tachi-card-pro tachi-filters">
+<div class="card shadow-sm mb-3">
     <div class="card-body">
         <form method="get" asp-action="Historial">
             <div class="row g-3 align-items-end">
@@ -86,7 +85,7 @@
             </div>
 
             <div class="mt-2">
-                <a asp-action="Historial" class="link-soft">
+                <a asp-action="Historial" class="btn btn-link p-0">
                     <i class="bi bi-x-circle me-1"></i> Limpiar filtros
                 </a>
             </div>
@@ -94,9 +93,9 @@
     </div>
 </div>
 
-<div class="card tachi-card-pro">
+<div class="card shadow-sm">
     <div class="card-body p-0">
-        <table class="table table-bordered table-striped tachi-table mb-0">
+        <table class="table table-striped mb-0">
             <thead>
                 <tr>
                     <th style="width:90px;">#</th>
@@ -104,7 +103,7 @@
                     <th>Cliente</th>
                     <th style="width:180px;">Método Pago</th>
                     <th style="width:140px;">Estado</th>
-                    <th class="text-center tachi-actions-col">Acciones</th>
+                    <th style="width:180px;">Acciones</th>
                 </tr>
             </thead>
 
@@ -121,32 +120,32 @@
                             <td>
                                 @if (x.Estado == "CREADA")
                                 {
-                                    <span class="badge tachi-badge bg-warning text-dark">CREADA</span>
+                                    <span class="badge bg-warning text-dark">CREADA</span>
                                 }
                                 else if (x.Estado == "ENTREGADA")
                                 {
-                                    <span class="badge tachi-badge bg-success">ENTREGADA</span>
+                                    <span class="badge bg-success">ENTREGADA</span>
                                 }
                                 else if (x.Estado == "CANCELADA")
                                 {
-                                    <span class="badge tachi-badge bg-danger">CANCELADA</span>
+                                    <span class="badge bg-danger">CANCELADA</span>
                                 }
                                 else
                                 {
-                                    <span class="badge tachi-badge bg-secondary">@x.Estado</span>
+                                    <span class="badge bg-secondary">@x.Estado</span>
                                 }
                             </td>
 
-                            <td class="text-center tachi-actions-col">
+                            <td>
                                 <a asp-action="Detalle"
                                    asp-route-id="@x.PedidoVentaId"
-                                   class="btn btn-sm btn-outline-secondary tachi-btn-mini me-1">
+                                   class="btn btn-sm btn-outline-secondary">
                                     Ver
                                 </a>
 
                                 <a asp-action="Editar"
                                    asp-route-id="@x.PedidoVentaId"
-                                   class="btn btn-sm btn-outline-warning tachi-btn-mini">
+                                   class="btn btn-sm btn-warning">
                                     Editar
                                 </a>
                             </td>

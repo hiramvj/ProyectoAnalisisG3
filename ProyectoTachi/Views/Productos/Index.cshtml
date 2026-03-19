@@ -1,17 +1,22 @@
-﻿<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+﻿@model List<Abstracciones.Modelos.ProductoDto>
+
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2 class="page-title mb-0">Productos</h2>
+        <h2 class="mb-0">Productos</h2>
         <small class="text-muted">Administra tu inventario y filtra rápidamente.</small>
     </div>
 
-    <div class="mt-2 mt-md-0">
-        <a asp-action="Create" class="btn btn-success btn-pill px-3">
-            <i class="bi bi-plus-circle me-1"></i> Agregar Producto
-        </a>
-    </div>
+    <a asp-action="Create" class="btn btn-success">
+        + Agregar Producto
+    </a>
 </div>
 
-<div class="card card-soft mb-3">
+<!-- FILTROS (NO SE ELIMINAN) -->
+<div class="card shadow-sm mb-3">
     <div class="card-body">
         <form method="get">
             <div class="row g-3 align-items-end">
@@ -19,11 +24,13 @@
                 <div class="col-lg-5">
                     <label class="form-label">Nombre</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
                         <input type="text"
                                name="nombre"
                                value="@Context.Request.Query["nombre"]"
-                               class="form-control input-soft"
+                               class="form-control"
                                placeholder="Buscar por nombre..." />
                     </div>
                 </div>
@@ -36,7 +43,7 @@
                                step="0.01"
                                name="precioMin"
                                value="@Context.Request.Query["precioMin"]"
-                               class="form-control input-soft"
+                               class="form-control"
                                placeholder="0" />
                     </div>
                 </div>
@@ -49,13 +56,13 @@
                                step="0.01"
                                name="precioMax"
                                value="@Context.Request.Query["precioMax"]"
-                               class="form-control input-soft"
+                               class="form-control"
                                placeholder="0" />
                     </div>
                 </div>
 
                 <div class="col-lg-1 d-grid">
-                    <button type="submit" class="btn btn-primary btn-pill">
+                    <button type="submit" class="btn btn-primary">
                         <i class="bi bi-funnel-fill"></i>
                     </button>
                 </div>
@@ -63,71 +70,78 @@
             </div>
 
             <div class="mt-2">
-                <a asp-action="Index" class="text-decoration-none">
+                <a asp-action="Index" class="btn btn-link p-0">
                     <i class="bi bi-x-circle me-1"></i> Limpiar filtros
                 </a>
             </div>
         </form>
     </div>
 </div>
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Código</th>
-            <th>Producto</th>
-            <th>Stock</th>
-            <th>Precio Unidad</th>
-            <th>Estado</th>
-            <th class="text-center">Acciones</th>
-        </tr>
-    </thead>
 
-    <tbody>
-        @foreach (var item in Model)
-        {
-            var bajoStock = item.Stock <= item.StockMinimo;
+<!-- TABLA -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Stock</th>
+                    <th>Precio Unidad</th>
+                    <th>Estado</th>
+                    <th style="width:200px;">Acciones</th>
+                </tr>
+            </thead>
 
-            <tr>
-                <td>@item.SKU</td>
-                <td>@item.Nombre</td>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var bajoStock = item.Stock <= item.StockMinimo;
 
-                <td class="@(bajoStock ? "text-danger fw-bold" : "")">
-                    @item.Stock
-                </td>
+                    <tr>
+                        <td>@item.SKU</td>
+                        <td>@item.Nombre</td>
 
-                <td>₡ @item.Precio.ToString("N2")</td>
+                        <td class="@(bajoStock ? "text-danger fw-bold" : "")">
+                            @item.Stock
+                        </td>
 
-                <td>
-                    @if (bajoStock)
-                    {
-                        <span class="badge bg-warning text-dark">Bajo Stock</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-success">Disponible</span>
-                    }
-                </td>
+                        <td>₡ @item.Precio.ToString("N2")</td>
 
-                <td class="text-center">
-                    <a asp-action="Edit"
-                       asp-route-id="@item.ProductoId"
-                       class="btn btn-sm btn-outline-primary">
-                        Editar
-                    </a>
+                        <td>
+                            @if (bajoStock)
+                            {
+                                <span class="badge bg-warning text-dark">Bajo Stock</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Disponible</span>
+                            }
+                        </td>
 
-                    <form asp-action="Desactivar"
-                          asp-route-id="@item.ProductoId"
-                          method="post"
-                          style="display:inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('¿Desea desactivar este producto?')">
-                            Desactivar
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                        <td>
+                            <a asp-action="Edit"
+                               asp-route-id="@item.ProductoId"
+                               class="btn btn-sm btn-warning">
+                                Editar
+                            </a>
+
+                            <form asp-action="Desactivar"
+                                  method="post"
+                                  style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.ProductoId" />
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('¿Desea desactivar este producto?')">
+                                    Desactivar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

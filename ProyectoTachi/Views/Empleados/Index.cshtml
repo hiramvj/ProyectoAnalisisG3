@@ -4,83 +4,55 @@
     ViewData["Title"] = "Empleados";
 }
 
-<h2 class="mb-2">Empleados</h2>
-<p class="text-muted">Administra tus empleados activos.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Empleados</h2>
+        <small class="text-muted">Administra tus empleados activos.</small>
+    </div>
 
-<div class="d-flex justify-content-end mb-3">
-
-    <a asp-action="Inactivos" class="btn btn-outline-secondary me-2">
-        Inactivos
-    </a>
-
-    <a asp-action="Create" class="btn btn-success">
-        + Agregar Empleado
-    </a>
-
+    <div>
+        <a asp-action="Inactivos" class="btn btn-outline-secondary">Inactivos</a>
+        <a asp-action="Create" class="btn btn-success">+ Agregar Empleado</a>
+    </div>
 </div>
 
-<table class="table table-hover table-bordered shadow-sm">
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Identificación</th>
+                    <th>Puesto</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th style="width:250px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.EmpleadoId</td>
+                        <td>@item.NombreCompleto</td>
+                        <td>@item.Identificacion</td>
+                        <td>@item.Puesto</td>
+                        <td>@item.Telefono</td>
+                        <td>@(item.Activo ? "Activo" : "Inactivo")</td>
+                        <td>
+                            <a asp-action="Asistencias" asp-route-id="@item.EmpleadoId" class="btn btn-sm btn-info">Asistencias</a>
+                            <a asp-action="Edit" asp-route-id="@item.EmpleadoId" class="btn btn-sm btn-warning">Editar</a>
 
-    <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>Nombre Completo</th>
-            <th>Identificación</th>
-            <th>Puesto</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-
-    <tbody>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-
-                <td>@item.EmpleadoId</td>
-
-                <td>@item.NombreCompleto</td>
-
-                <td>@item.Identificacion</td>
-
-                <td>@item.Puesto</td>
-
-                <td>@item.Telefono</td>
-
-                <td>
-                    <span class="badge bg-success">Activo</span>
-                </td>
-
-                <td>
-                    <a asp-action="Asistencias"
-                       asp-route-id="@item.EmpleadoId"
-                       class="btn btn-info btn-sm me-1">
-                        Asistencias
-                    </a>
-                    <a asp-action="Edit"
-                       asp-route-id="@item.EmpleadoId"
-                       class="btn btn-warning btn-sm me-1">
-                        Editar
-                    </a>
-
-                    <form asp-action="Desactivar"
-                          asp-route-id="@item.EmpleadoId"
-                          method="post"
-                          style="display:inline">
-
-                        <button class="btn btn-danger btn-sm">
-                            Desactivar
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
-        }
-
-    </tbody>
-
-</table>
+                            <form asp-action="Desactivar" method="post" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.EmpleadoId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

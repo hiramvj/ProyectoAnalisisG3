@@ -1,7 +1,10 @@
-/* ====== BASE ====== */
+/* =========================
+   BASE
+   ========================= */
 .tachi-bg {
-    background: #f4f6fb;
+    background: #f3f5fa;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #0b1f33;
 }
 
 .tachi-shell {
@@ -10,7 +13,9 @@
     grid-template-columns: 260px 1fr;
 }
 
-/* ====== SIDEBAR ====== */
+/* =========================
+   SIDEBAR
+   ========================= */
 .tachi-sidebar {
     background: linear-gradient(180deg, #0b2a4a 0%, #071e34 100%);
     color: #fff;
@@ -24,7 +29,7 @@
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.10);
     border-radius: 14px;
-    padding: 14px 14px;
+    padding: 14px;
     margin-bottom: 14px;
 }
 
@@ -61,7 +66,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: 0.15s ease;
+    transition: .15s ease;
     border: 1px solid transparent;
 }
 
@@ -87,7 +92,9 @@
     margin: 10px 4px;
 }
 
-/* ====== MAIN / TOPBAR ====== */
+/* =========================
+   MAIN
+   ========================= */
 .tachi-main {
     display: flex;
     flex-direction: column;
@@ -96,7 +103,7 @@
 
 .tachi-topbar {
     background: #ffffff;
-    border-bottom: 1px solid #e8ecf5;
+    border-bottom: 1px solid #e5e7eb;
     padding: 10px 16px;
     display: flex;
     align-items: center;
@@ -121,7 +128,7 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    border: 1px solid #e8ecf5;
+    border: 1px solid #e5e7eb;
     background: #fff;
     display: grid;
     place-items: center;
@@ -129,43 +136,159 @@
 }
 
     .tachi-icon-btn:hover {
-        background: #f6f8ff;
+        background: #f8fafc;
     }
 
-/* ====== CONTENT ====== */
 .tachi-content {
     padding: 18px;
 }
 
-/* ====== FOOTER ====== */
 .tachi-footer {
     margin-top: auto;
     padding: 12px 18px;
-    border-top: 1px solid #e8ecf5;
+    border-top: 1px solid #e5e7eb;
     background: #fff;
     color: #6b7280;
     font-size: 13px;
 }
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 992px) {
-    .tachi-shell {
-        grid-template-columns: 1fr;
+/* =========================
+   HEADER DE PÁGINA
+   ========================= */
+.tachi-pagehead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+    .tachi-pagehead h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2rem;
+        color: #0b1f33;
     }
 
-    .tachi-sidebar {
-        position: relative;
-        height: auto;
+    .tachi-pagehead small {
+        display: block;
+        margin-top: 4px;
+        color: #6b7280;
+        font-size: 14px;
     }
+
+/* =========================
+   CONTENEDORES SUAVES
+   ========================= */
+.tachi-panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
 }
-/* ===== AUTH: CENTRADO GARANTIZADO ===== */
+
+.tachi-panel-body {
+    padding: 14px 16px;
+}
+
+/* =========================
+   FILTROS
+   ========================= */
+.tachi-filters {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+    .tachi-filters .card-body,
+    .tachi-filters .tachi-panel-body {
+        padding: 14px 16px;
+    }
+
+    .tachi-filters .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .tachi-filters .form-control,
+    .tachi-filters .form-select,
+    .tachi-filters .input-group-text {
+        border-color: #d1d5db;
+    }
+
+.link-soft {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+    .link-soft:hover {
+        text-decoration: underline;
+    }
+
+/* =========================
+   TABLAS
+   ========================= */
+.tachi-table-wrap {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.tachi-table {
+    margin-bottom: 0;
+}
+
+    .tachi-table thead th {
+        background: #f8fafc;
+        border-bottom: 1px solid #d1d5db !important;
+        font-weight: 700;
+        color: #111827;
+        padding: 10px 12px;
+        vertical-align: middle;
+    }
+
+    .tachi-table tbody td {
+        padding: 10px 12px;
+        vertical-align: middle;
+        border-color: #e5e7eb;
+    }
+
+.tachi-actions-col {
+    white-space: nowrap;
+    width: 180px;
+}
+
+/* =========================
+   BOTONES DE ACCIÓN TABLA
+   ========================= */
+.tachi-btn-mini {
+    padding: .25rem .55rem;
+    font-size: .875rem;
+}
+
+/* =========================
+   BADGES
+   ========================= */
+.tachi-badge {
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .35rem .55rem;
+    border-radius: .4rem;
+}
+
+/* =========================
+   AUTH
+   ========================= */
 .tachi-auth-bg {
     margin: 0 !important;
     min-height: 100vh !important;
     background: radial-gradient(1000px 600px at 50% 30%, #1e4d86 0%, #0b2a4a 60%, #071e34 100%) !important;
 }
 
-/* esto centra sí o sí */
 .tachi-auth-center {
     min-height: 100vh !important;
     width: 100% !important;
@@ -175,17 +298,15 @@
     padding: 24px 16px !important;
 }
 
-/* tamaño y look del card */
 .tachi-auth-card {
     width: 520px !important;
     max-width: 92vw !important;
     background: #fff !important;
-    border-radius: 16px !important;
+    border-radius: 12px !important;
     padding: 30px 28px !important;
-    box-shadow: 0 30px 80px rgba(0,0,0,.35) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25) !important;
 }
 
-/* Logo y header */
 .auth-logo {
     max-width: 300px;
     width: 100%;
@@ -206,7 +327,7 @@
 
 .auth-btn {
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 700;
 }
 
@@ -218,125 +339,17 @@
     .auth-link:hover {
         text-decoration: underline;
     }
-/* ===== INVENTORY CARD ===== */
-.inventory-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-}
 
-.inventory-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width: 992px) {
+    .tachi-shell {
+        grid-template-columns: 1fr;
+    }
 
-.inventory-filters {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.inventory-table thead {
-    background: #f3f4f6;
-}
-
-.inventory-table th {
-    font-weight: 600;
-}
-
-.action-btn {
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-/* ====== TACHi Card Forms ====== */
-.tachi-page {
-    padding: 20px 10px;
-}
-
-.tachi-card {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.08);
-    border: 1px solid rgba(0,0,0,.06);
-    padding: 18px 18px 20px;
-}
-
-.tachi-card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.tachi-title {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    color: #0b1f33;
-}
-
-.tachi-subtitle {
-    margin: 6px 0 0;
-    color: #6c7a89;
-    font-size: 14px;
-}
-
-.tachi-sep {
-    margin: 14px 0 18px;
-    opacity: .15;
-}
-
-.tachi-form .form-label {
-    font-weight: 600;
-    color: #223;
-}
-
-.tachi-form .form-control,
-.tachi-form .form-select {
-    border-radius: 10px;
-    padding: 10px 12px;
-}
-
-.tachi-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(0,0,0,.06);
-}
-
-.page-title {
-    font-weight: 700;
-    letter-spacing: .2px;
-}
-
-.card-soft {
-    border: 0;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.06);
-}
-
-.btn-pill {
-    border-radius: 999px;
-}
-
-.input-soft {
-    border-radius: 12px;
-}
-
-.table thead th {
-    background: #f7f9fc;
-    border-bottom: 1px solid #e9eef5;
-}
-
-.table td, .table th {
-    vertical-align: middle;
+    .tachi-sidebar {
+        position: relative;
+        height: auto;
+    }
 }
