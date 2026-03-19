@@ -21,6 +21,22 @@ namespace DA.Implementaciones
 
         public async Task<IEnumerable<ReporteVentaDto>> ObtenerReporteVentasAsync(ReporteVentasFiltroDto filtro)
         {
+            DateTime? desdeUtc = null;
+            DateTime? hastaUtc = null;
+
+            if (filtro.Desde.HasValue)
+            {
+                desdeUtc = DateTime.SpecifyKind(filtro.Desde.Value.Date, DateTimeKind.Utc);
+            }
+
+            if (filtro.Hasta.HasValue)
+            {
+                hastaUtc = DateTime.SpecifyKind(
+                    filtro.Hasta.Value.Date.AddDays(1).AddTicks(-1),
+                    DateTimeKind.Utc
+                );
+            }
+
             var query =
                 from pv in _context.PedidoVentas.AsNoTracking()
                 join c in _context.Clientes.AsNoTracking()
@@ -44,16 +60,14 @@ namespace DA.Implementaciones
                     pv.Estado
                 };
 
-            if (filtro.Desde.HasValue)
+            if (desdeUtc.HasValue)
             {
-                var desde = filtro.Desde.Value.Date;
-                query = query.Where(x => x.FechaPedido.Date >= desde);
+                query = query.Where(x => x.FechaPedido >= desdeUtc.Value);
             }
 
-            if (filtro.Hasta.HasValue)
+            if (hastaUtc.HasValue)
             {
-                var hasta = filtro.Hasta.Value.Date;
-                query = query.Where(x => x.FechaPedido.Date <= hasta);
+                query = query.Where(x => x.FechaPedido <= hastaUtc.Value);
             }
 
             if (filtro.ClienteId.HasValue)

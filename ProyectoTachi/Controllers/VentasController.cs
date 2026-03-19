@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using ProyectoTachi.Servicios;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 
 namespace ProyectoTachi.Controllers
 {
@@ -169,6 +172,20 @@ namespace ProyectoTachi.Controllers
         {
             var productos = await _pedidoFlujo.ObtenerProductosMasVendidosAsync();
             return View(productos);
+        }
+        public async Task<IActionResult> ImprimirFactura(int id)
+        {
+            var dto = await _pedidoFlujo.ObtenerDetalleAsync(id);
+            if (dto == null) return NotFound();
+
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "tachi-logo.png");
+
+            var document = new FacturaPdfDocument(dto, logoPath);
+            var pdfBytes = document.GeneratePdf();
+
+            return File(pdfBytes, "application/pdf", $"Factura_{dto.NumeroPedido}.pdf");
         }
     }
 }

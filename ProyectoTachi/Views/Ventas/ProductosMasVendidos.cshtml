@@ -2,42 +2,100 @@
 
 @{
     ViewData["Title"] = "Productos Más Vendidos";
+    var totalVendido = Model.Sum(x => x.CantidadVendida);
+    var topProducto = Model.Any() ? Model.First().Nombre : "-";
+    var topCantidad = Model.Any() ? Model.First().CantidadVendida : 0;
 }
 
-<h2>Productos Más Vendidos</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Productos Más Vendidos</h2>
+        <small class="text-muted">Resumen de los productos con mayor cantidad vendida.</small>
+    </div>
 
-<div class="card shadow-sm border-0 mt-3">
+    <div>
+        <a asp-action="Historial" class="btn btn-outline-secondary">
+            Volver
+        </a>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Total vendido</small>
+                <h4 class="mb-0">@totalVendido</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Producto top</small>
+                <h5 class="mb-0">@topProducto</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Cantidad del top</small>
+                <h4 class="mb-0">@topCantidad</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
     <div class="card-body">
+        <canvas id="graficoProductos" height="110"></canvas>
+    </div>
+</div>
 
-        <canvas id="graficoProductos"></canvas>
-
-        <table class="table table-striped mt-4">
+<div class="card shadow-sm mt-3">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
             <thead>
                 <tr>
+                    <th style="width:80px;">#</th>
                     <th>Producto</th>
-                    <th>Cantidad Vendida</th>
+                    <th style="width:200px;">Cantidad Vendida</th>
                 </tr>
             </thead>
 
             <tbody>
-                @foreach (var p in Model)
+                @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td>@p.Nombre</td>
-                        <td>@p.CantidadVendida</td>
+                        <td colspan="3" class="text-center text-muted py-4">
+                            No hay datos para mostrar.
+                        </td>
                     </tr>
                 }
+                else
+                {
+                    var i = 1;
+                    foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td>@p.Nombre</td>
+                            <td>@p.CantidadVendida</td>
+                        </tr>
+                        i++;
+                    }
+                }
             </tbody>
-
         </table>
-
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-
     const labels = [
         @foreach (var p in Model)
         {
@@ -60,9 +118,24 @@
             labels: labels,
             datasets: [{
                 label: 'Cantidad Vendida',
-                data: data
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.45)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
     });
-
 </script>
