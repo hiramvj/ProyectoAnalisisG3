@@ -111,6 +111,12 @@
                         <i class="fa-solid fa-chart-pie"></i>
                         <span>Dashboard Métricas</span>
                     </a>
+
+                    <a class="tachi-link @(ViewContext.RouteData.Values["action"]?.ToString() == "InformeFinanciero" ? "active" : "")"
+                       asp-controller="Home" asp-action="InformeFinanciero">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Informe Financiero</span>
+                    </a>
                 }
 
                 <div class="tachi-divider"></div>
