@@ -137,6 +137,11 @@ namespace DA.Contexto
                       .WithOne(d => d.NotaCredito)
                       .HasForeignKey<NotaCredito>(n => n.DevolucionVentaId);
             });
+
+            modelBuilder.Entity<Asistencia>(entity =>
+            {
+                entity.ToTable("asistencia", t => t.ExcludeFromMigrations());
+            });
         }
     }
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
