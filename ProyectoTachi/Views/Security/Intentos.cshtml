@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Abstracciones.Modelos.IntentoLoginFallidoDto>
+
+@{
+    ViewData["Title"] = "Intentos Fallidos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Intentos Fallidos</h2>
+        <small class="text-muted">Registro de intentos fallidos de inicio de sesión.</small>
+    </div>
+
+    <div>
+        <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary">
+            Volver
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Fecha</th>
+                    <th>IP</th>
+                    <th>Navegador</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EmailIngresado</td>
+                            <td>@item.FechaIntento.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                            <td>@item.IpAddress</td>
+                            <td>@item.UserAgent</td>
+                            <td>
+                                @if (item.Motivo == "Credenciales incorrectas")
+                                {
+                                    <span class="badge bg-danger">Credenciales incorrectas</span>
+                                }
+                                else if (item.Motivo == "Usuario bloqueado")
+                                {
+                                    <span class="badge bg-warning text-dark">Usuario bloqueado</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@item.Motivo</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            No hay intentos fallidos registrados.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

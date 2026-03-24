@@ -68,6 +68,9 @@ builder.Services.AddScoped<IDevolucionVentaDA, DevolucionVentaDA>();
 builder.Services.AddScoped<IDevolucionVentaFlujo, DevolucionVentaFlujo>();
 builder.Services.AddScoped<ICuentasPorPagarDA, CuentasPorPagarDA>();
 builder.Services.AddScoped<ICuentasPorPagarFlujo, CuentasPorPagarFlujo>();
+builder.Services.AddScoped<IIntentoLoginFallidoDA, IntentoLoginFallidoDA>();
+builder.Services.AddScoped<IntentoLoginFallidoFlujo>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 await SeedAdminAsync(app);

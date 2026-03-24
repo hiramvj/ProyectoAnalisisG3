@@ -45,6 +45,7 @@ namespace DA.Contexto
         public DbSet<NotaCredito> NotasCredito { get; set; }
         public DbSet<CuentaPorPagar> CuentasPorPagar { get; set; }
         public DbSet<PagoProveedor> PagosProveedor { get; set; }
+        public DbSet<IntentoLoginFallido> IntentosLoginFallidos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

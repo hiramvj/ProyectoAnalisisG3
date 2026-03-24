@@ -120,11 +120,15 @@
                 }
 
                 <div class="tachi-divider"></div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Security" ? "active" : "")"
+                       asp-controller="Security" asp-action="Intentos">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Intentos Fallidos</span>
+                    </a>
+                }
 
-                <a class="tachi-link" asp-area="" asp-controller="Home" asp-action="Privacy">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>Seguridad/Privacidad</span>
-                </a>
             </nav>
         </aside>
 

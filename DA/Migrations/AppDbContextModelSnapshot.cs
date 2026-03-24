@@ -353,7 +353,7 @@ namespace DA.Migrations
 
                     b.HasKey("EmpleadoId");
 
-                    b.ToTable("Empleado");
+                    b.ToTable("Empleado", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.Factura", b =>
@@ -391,7 +391,7 @@ namespace DA.Migrations
 
                     b.HasIndex("PedidoVentaId");
 
-                    b.ToTable("Factura");
+                    b.ToTable("Factura", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.FacturaDetalle", b =>
@@ -418,7 +418,7 @@ namespace DA.Migrations
 
                     b.HasIndex("FacturaId");
 
-                    b.ToTable("FacturaDetalle");
+                    b.ToTable("FacturaDetalle", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.NotaCredito", b =>
@@ -500,7 +500,7 @@ namespace DA.Migrations
 
                     b.HasKey("OrdenCompraId");
 
-                    b.ToTable("ordencompra");
+                    b.ToTable("ordencompra", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.OrdenCompraDetalle", b =>
@@ -532,7 +532,7 @@ namespace DA.Migrations
 
                     b.HasIndex("OrdenCompraId");
 
-                    b.ToTable("ordencompradetalle");
+                    b.ToTable("ordencompradetalle", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.PedidoVenta", b =>
@@ -637,7 +637,7 @@ namespace DA.Migrations
 
                     b.HasIndex("TransportistaId");
 
-                    b.ToTable("rutaentrega");
+                    b.ToTable("rutaentrega", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.RutaEntregaDetalle", b =>
@@ -670,7 +670,7 @@ namespace DA.Migrations
 
                     b.HasIndex("RutaId");
 
-                    b.ToTable("rutaentregadetalle");
+                    b.ToTable("rutaentregadetalle", (string)null);
                 });
 
             modelBuilder.Entity("DA.Entidades.Transportista", b =>
@@ -701,7 +701,7 @@ namespace DA.Migrations
 
                     b.HasKey("TransportistaId");
 
-                    b.ToTable("transportista");
+                    b.ToTable("transportista", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
