@@ -1,4 +1,4 @@
-﻿using Abstracciones.Modelos;
+using Abstracciones.Modelos;
 using DA.Entidades;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -40,6 +40,9 @@ namespace DA.Contexto
         public DbSet<RutaEntregaDetalle> RutasEntregaDetalle { get; set; }
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<Asistencia> Asistencias { get; set; }
+        public DbSet<DevolucionVenta> DevolucionesVenta { get; set; }
+        public DbSet<DevolucionVentaDetalle> DevolucionesVentaDetalle { get; set; }
+        public DbSet<NotaCredito> NotasCredito { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +112,30 @@ namespace DA.Contexto
                 // ✅ Columnas reales 
                 entity.Property(x => x.MetodoPagoId).HasColumnName("metodopagoid");
                 entity.Property(x => x.Nombre).HasColumnName("nombre").HasMaxLength(150);
+            });
+
+            modelBuilder.Entity<DevolucionVenta>(entity =>
+            {
+                entity.ToTable("DevolucionVenta");
+                entity.HasKey(d => d.DevolucionVentaId);
+            });
+
+            modelBuilder.Entity<DevolucionVentaDetalle>(entity =>
+            {
+                entity.ToTable("DevolucionVentaDetalle");
+                entity.HasKey(d => d.DevolucionVentaDetalleId);
+                entity.HasOne(d => d.DevolucionVenta)
+                      .WithMany(dv => dv.Detalles)
+                      .HasForeignKey(d => d.DevolucionVentaId);
+            });
+
+            modelBuilder.Entity<NotaCredito>(entity =>
+            {
+                entity.ToTable("NotaCredito");
+                entity.HasKey(n => n.NotaCreditoId);
+                entity.HasOne(n => n.DevolucionVenta)
+                      .WithOne(d => d.NotaCredito)
+                      .HasForeignKey<NotaCredito>(n => n.DevolucionVentaId);
             });
         }
     }

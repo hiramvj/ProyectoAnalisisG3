@@ -1,0 +1,88 @@
+@model List<Abstracciones.Modelos.DevolucionListadoDto>
+@{
+    ViewData["Title"] = "Devoluciones de Venta";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Devoluciones de Venta</h2>
+        <small class="text-muted">Gestión de devoluciones y notas de crédito</small>
+    </div>
+    <a asp-action="Crear" class="btn btn-primary">
+        <i class="fa-solid fa-plus me-1"></i> Nueva Devolución
+    </a>
+</div>
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fa-solid fa-circle-check me-1"></i> @TempData["Ok"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fa-solid fa-circle-exclamation me-1"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th style="width:60px;">#</th>
+                    <th>Factura</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th style="width:140px;">Monto</th>
+                    <th>Nota Crédito</th>
+                    <th style="width:100px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.DevolucionVentaId</td>
+                            <td>#@item.NumeroFactura</td>
+                            <td>@item.FechaDevolucion.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (item.Tipo == "TOTAL")
+                                {
+                                    <span class="badge bg-danger">TOTAL</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">PARCIAL</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-success">@item.Estado</span></td>
+                            <td class="fw-bold">₡@item.MontoTotal.ToString("N2")</td>
+                            <td><span class="badge bg-info text-dark">NC-@item.NumeroNotaCredito</span></td>
+                            <td>
+                                <a asp-action="Detalle" asp-route-id="@item.DevolucionVentaId"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa-solid fa-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            No hay devoluciones registradas.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

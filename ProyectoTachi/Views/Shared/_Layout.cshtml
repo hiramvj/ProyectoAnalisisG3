@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -57,6 +57,11 @@
                        asp-controller="Ventas" asp-action="Historial">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span>Historial Ventas</span>
+                    </a>
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Devoluciones" ? "active" : "")"
+                       asp-controller="Devoluciones" asp-action="Index">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Devoluciones</span>
                     </a>
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transportistas" ? "active" : "")"
                        asp-controller="Transportistas" asp-action="Index">

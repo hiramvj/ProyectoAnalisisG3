@@ -64,6 +64,8 @@ builder.Services.AddScoped<IRutaEntregaFlujo, RutaEntregaFlujo>();
 builder.Services.AddScoped<IRutaEntregaDetalleFlujo, RutaEntregaDetalleFlujo>();
 builder.Services.AddScoped<IReporteDA, ReporteDA>();
 builder.Services.AddScoped<IReporteFlujo, ReporteFlujo>();
+builder.Services.AddScoped<IDevolucionVentaDA, DevolucionVentaDA>();
+builder.Services.AddScoped<IDevolucionVentaFlujo, DevolucionVentaFlujo>();
 
 var app = builder.Build();
 await SeedAdminAsync(app);
