@@ -50,6 +50,31 @@ namespace ProyectoTachi.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> InformeFinanciero()
+        {
+            // Usamos _productoFlujo que ya está inyectado en tu controlador
+            var productos = await _productoFlujo.ObtenerTodosAsync(true);
+
+            var model = new InformeFinancieroViewModel();
+
+            if (productos != null && productos.Any())
+            {
+                model.ValorTotalCosto = productos.Sum(p => p.Costo * p.Stock);
+                model.ValorTotalVenta = productos.Sum(p => p.Precio * p.Stock);
+                model.MargenGananciaEstimado = model.ValorTotalVenta - model.ValorTotalCosto;
+
+                model.Productos = productos.Select(p => new DetalleFinancieroProducto
+                {
+                    Nombre = p.Nombre,
+                    Cantidad = p.Stock,
+                    PrecioVenta = p.Precio,
+                    SubtotalVenta = p.Precio * p.Stock
+                }).ToList();
+            }
+
+            return View(model);
+        }
+
         public IActionResult Privacy()
         {
             return View();
