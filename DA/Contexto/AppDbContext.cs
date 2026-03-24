@@ -43,6 +43,8 @@ namespace DA.Contexto
         public DbSet<DevolucionVenta> DevolucionesVenta { get; set; }
         public DbSet<DevolucionVentaDetalle> DevolucionesVentaDetalle { get; set; }
         public DbSet<NotaCredito> NotasCredito { get; set; }
+        public DbSet<CuentaPorPagar> CuentasPorPagar { get; set; }
+        public DbSet<PagoProveedor> PagosProveedor { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -141,6 +143,21 @@ namespace DA.Contexto
             modelBuilder.Entity<Asistencia>(entity =>
             {
                 entity.ToTable("asistencia", t => t.ExcludeFromMigrations());
+            });
+
+            modelBuilder.Entity<CuentaPorPagar>(entity =>
+            {
+                entity.ToTable("CuentaPorPagar");
+                entity.HasKey(c => c.CuentaPorPagarId);
+            });
+
+            modelBuilder.Entity<PagoProveedor>(entity =>
+            {
+                entity.ToTable("PagoProveedor");
+                entity.HasKey(p => p.PagoProveedorId);
+                entity.HasOne(p => p.CuentaPorPagar)
+                      .WithMany(c => c.Pagos)
+                      .HasForeignKey(p => p.CuentaPorPagarId);
             });
         }
     }

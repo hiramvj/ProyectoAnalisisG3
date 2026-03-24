@@ -96,6 +96,11 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span>Órdenes de Compra</span>
                     </a>
+                    <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CuentasPorPagar" ? "active" : "")"
+                       asp-controller="CuentasPorPagar" asp-action="Index">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Cuentas por Pagar</span>
+                    </a>
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reportes" ? "active" : "")"
                        asp-controller="Reportes" asp-action="Index">
                         <i class="fa-solid fa-chart-column"></i>
