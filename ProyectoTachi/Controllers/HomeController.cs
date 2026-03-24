@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoTachi.Models;
 using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Modelos;
 
 namespace ProyectoTachi.Controllers
 {
@@ -85,5 +86,18 @@ namespace ProyectoTachi.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerarNota(NotaContableDto nota)
+        {
+            if (nota.Monto <= 0)
+            {
+                ModelState.AddModelError("", "El monto debe ser mayor a cero.");
+                return View(nota);
+            } 
+
+            return RedirectToAction("HistorialVentas");
+        }
+
     }
 }

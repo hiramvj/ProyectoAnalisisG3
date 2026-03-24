@@ -1,5 +1,6 @@
 ﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,5 +30,11 @@ namespace Flujo
 
             return facturaId;
         }
+
+        public async Task<int> AplicarNotaAjusteAsync(NotaContableDto dto)
+        {
+            return await Task.FromResult(dto.FacturaId);
+        }
+
     }
 }

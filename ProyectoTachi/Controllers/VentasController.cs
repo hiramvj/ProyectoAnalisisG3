@@ -187,5 +187,36 @@ namespace ProyectoTachi.Controllers
 
             return File(pdfBytes, "application/pdf", $"Factura_{dto.NumeroPedido}.pdf");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> NotaAjuste(int id)
+        {
+            var detalle = await _pedidoFlujo.ObtenerDetalleAsync(id);
+            if (detalle == null) return NotFound();
+
+            
+            var model = new NotaContableDto
+            {
+                FacturaId = id,
+                MontoMaximo = detalle.Total 
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NotaAjuste(NotaContableDto dto)
+        {
+            try
+            {
+                await _facturaFlujo.AplicarNotaAjusteAsync(dto);
+                return Json(new { success = true, message = "¡Ajuste aplicado correctamente!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
