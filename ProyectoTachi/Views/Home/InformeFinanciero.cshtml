@@ -1,0 +1,103 @@
+﻿@model InformeFinancieroViewModel
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+        <div>
+            <h2 class="text-dark fw-bold">Reporte de Desempeño Económico</h2>
+            <p class="text-muted mb-0">Análisis de valoración de inventario actual</p>
+        </div>
+        <button class="btn btn-danger shadow-sm" onclick="descargarPDF()">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </button>
+
+        <script>
+            function descargarPDF() {
+                // Seleccionamos todo el contenido del reporte
+                const elemento = document.querySelector('.container');
+
+                const opciones = {
+                    margin:       0.5,
+                    filename:     'Reporte_Financiero_Tachi.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                // Esto genera el PDF y lo descarga automáticamente
+                html2pdf().set(opciones).from(elemento).save();
+            }
+        </script>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <span class="text-muted small uppercase fw-bold">Inversión en Bodega</span>
+                    <h3 class="mt-2 mb-0">@Model.ValorTotalCosto.ToString("C", new System.Globalization.CultureInfo("es-CR"))</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <span class="text-white-50 small uppercase fw-bold">Retorno Estimado (Venta)</span>
+                    <h3 class="mt-2 mb-0">@Model.ValorTotalVenta.ToString("C", new System.Globalization.CultureInfo("es-CR"))</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <span class="text-white-50 small uppercase fw-bold">Utilidad Proyectada</span>
+                    <h3 class="mt-2 mb-0">@Model.MargenGananciaEstimado.ToString("C", new System.Globalization.CultureInfo("es-CR"))</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fa-solid fa-circle-info fa-2x me-3"></i>
+            <div>
+                <h6 class="mb-1 fw-bold">Fórmula del Cálculo:</h6>
+                <p class="mb-0 small">
+                    <strong>El Subtotal Venta se calcula mediante la relación:</strong>
+                    <code class="bg-white px-2 py-1 rounded text-dark">Subtotal = Existencias × Precio Unitario</code>.
+                    Este valor representa la valoración bruta de los activos actuales en inventario.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 text-dark">Desglose de Activos por Producto</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Producto</th>
+                        <th>Existencias</th>
+                        <th>Precio Unitario</th>
+                        <th class="text-end pe-4">Subtotal Venta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Productos)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-medium">@item.Nombre</td>
+                            <td>@item.Cantidad.ToString("N2")</td>
+                            <td>@item.PrecioVenta.ToString("C", new System.Globalization.CultureInfo("es-CR"))</td>
+                            <td class="text-end pe-4 fw-bold">@item.SubtotalVenta.ToString("C", new System.Globalization.CultureInfo("es-CR"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
