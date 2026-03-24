@@ -77,10 +77,13 @@ await SeedAdminAsync(app);
 await SeedProductsAsync(app);
 await SeedClientsAsync(app);
 await SeedProductsAsync(app);
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://*:{port}");
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
 
     const string roleName = "Admin";
     var adminEmail = "admin@tachi.com";
