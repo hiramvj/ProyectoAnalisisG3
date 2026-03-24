@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces.DA;
+using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using System;
@@ -21,6 +21,11 @@ namespace Flujo
         public async Task<IEnumerable<ReporteVentaDto>> ObtenerReporteVentasAsync(ReporteVentasFiltroDto filtro)
         {
             return await _reporteDA.ObtenerReporteVentasAsync(filtro);
+        }
+
+        public async Task<DashboardAgrupadoDto> ObtenerMetricasDashboardAsync(MetricasFiltroDto filtro)
+        {
+            return await _reporteDA.ObtenerMetricasDashboardAsync(filtro);
         }
     }
 }

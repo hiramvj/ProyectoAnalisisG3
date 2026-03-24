@@ -1,4 +1,4 @@
-﻿using Abstracciones.Modelos;
+using Abstracciones.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +10,6 @@ namespace Abstracciones.Interfaces.Flujo
     public interface IReporteFlujo
     {
         Task<IEnumerable<ReporteVentaDto>> ObtenerReporteVentasAsync(ReporteVentasFiltroDto filtro);
+        Task<DashboardAgrupadoDto> ObtenerMetricasDashboardAsync(MetricasFiltroDto filtro);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +11,18 @@ namespace ProyectoTachi.Controllers
         private readonly IReporteFlujo _reporteFlujo;
         private readonly IClienteFlujo _clienteFlujo;
         private readonly IProductoFlujo _productoFlujo;
+        private readonly DA.Contexto.AppDbContext _db;
 
         public ReportesController(
             IReporteFlujo reporteFlujo,
             IClienteFlujo clienteFlujo,
-            IProductoFlujo productoFlujo)
+            IProductoFlujo productoFlujo,
+            DA.Contexto.AppDbContext db)
         {
             _reporteFlujo = reporteFlujo;
             _clienteFlujo = clienteFlujo;
             _productoFlujo = productoFlujo;
+            _db = db;
         }
 
         [HttpGet]
@@ -75,6 +78,25 @@ namespace ProyectoTachi.Controllers
                 stream.ToArray(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"ReporteVentas_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Dashboard()
+        {
+            var clientes = await _clienteFlujo.ObtenerTodosAsync(true);
+            var categorias = _db.CategoriasProducto.AsEnumerable();
+
+            ViewBag.Clientes = new SelectList(clientes, "ClienteId", "NombreCompleto");
+            ViewBag.Categorias = new SelectList(categorias, "CategoriaProductoId", "Nombre");
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMetricas([FromQuery] MetricasFiltroDto filtro)
+        {
+            var metricas = await _reporteFlujo.ObtenerMetricasDashboardAsync(filtro);
+            return Json(metricas);
         }
 
         private async Task CargarCombos(ReporteVentasFiltroDto filtro)
