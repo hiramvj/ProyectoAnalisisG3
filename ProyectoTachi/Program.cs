@@ -43,7 +43,9 @@ builder.Services.AddScoped<Abstracciones.Interfaces.DA.IPedidoVentaDA, DA.Implem
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IPedidoVentaFlujo, Flujo.PedidoVentaFlujo>();
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IFacturaDA, DA.Implementaciones.FacturaDA>();
 builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IFacturaFlujo, Flujo.FacturaFlujo>();
-builder.Services.AddSingleton<IEmailSender, EmailSender>();
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
 builder.Services.AddScoped<IPedidoVentaDA, PedidoVentaDA>();
 builder.Services.AddScoped<IPedidoVentaFlujo, PedidoVentaFlujo>();
 builder.Services.AddScoped<IProveedorDA, ProveedorDA>();
