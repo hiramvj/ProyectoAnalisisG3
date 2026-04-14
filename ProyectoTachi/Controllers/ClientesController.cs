@@ -15,119 +15,189 @@ namespace ProyectoTachi.Controllers
             _pedidoFlujo = pedidoFlujo;
         }
 
-        // LISTA ACTIVOS + FILTRO
         [HttpGet]
         public async Task<IActionResult> Index(string? q)
         {
-            var lista = await _flujo.ObtenerTodosAsync(true);
-
-            if (!string.IsNullOrWhiteSpace(q))
+            try
             {
-                q = q.Trim();
+                var lista = await _flujo.ObtenerTodosAsync(true);
 
-                lista = lista
-                    .Where(c =>
-                        (!string.IsNullOrWhiteSpace(c.Identificacion) && c.Identificacion.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(c.NombreCompleto) && c.NombreCompleto.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
-                        (!string.IsNullOrWhiteSpace(c.Correo) && c.Correo.Contains(q, StringComparison.OrdinalIgnoreCase))
-                    )
-                    .ToList();
+                if (!string.IsNullOrWhiteSpace(q))
+                {
+                    q = q.Trim();
+
+                    lista = lista
+                        .Where(c =>
+                            (!string.IsNullOrWhiteSpace(c.Identificacion) && c.Identificacion.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(c.NombreCompleto) && c.NombreCompleto.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                            (!string.IsNullOrWhiteSpace(c.Correo) && c.Correo.Contains(q, StringComparison.OrdinalIgnoreCase))
+                        )
+                        .ToList();
+                }
+
+                ViewBag.TotalClientesActivos = lista?.Count ?? 0;
+                ViewBag.Q = q;
+
+                return View(lista);
             }
-
-            // El cuadrito ahora refleja lo filtrado
-            ViewBag.TotalClientesActivos = lista?.Count ?? 0;
-            ViewBag.Q = q;
-
-            return View(lista);
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Ocurrió un error al cargar los clientes: {ex.Message}";
+                return View(new List<ClienteDto>());
+            }
         }
 
-        // LISTA INACTIVOS
         [HttpGet]
         public async Task<IActionResult> Inactivos()
         {
-            var clientes = await _flujo.ObtenerTodosAsync(false);
-            return View(clientes);
+            try
+            {
+                var clientes = await _flujo.ObtenerTodosAsync(false);
+                return View(clientes);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Ocurrió un error al cargar los clientes inactivos: {ex.Message}";
+                return View(new List<ClienteDto>());
+            }
         }
 
-        // CREATE (GET)
         [HttpGet]
         public IActionResult Create()
         {
             return View(new ClienteDto());
         }
 
-        // CREATE (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClienteDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.NombreCompleto))
-                ModelState.AddModelError(nameof(dto.NombreCompleto), "El nombre completo es requerido.");
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dto.NombreCompleto))
+                    ModelState.AddModelError(nameof(dto.NombreCompleto), "El nombre completo es requerido.");
 
-            if (!ModelState.IsValid)
+                if (!ModelState.IsValid)
+                    return View(dto);
+
+                await _flujo.AgregarAsync(dto);
+
+                TempData["MensajeExito"] = "Cliente registrado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
                 return View(dto);
-
-            await _flujo.AgregarAsync(dto);
-
-            return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al guardar el cliente: {ex.Message}");
+                return View(dto);
+            }
         }
 
-        // EDIT (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var dto = await _flujo.ObtenerPorIdAsync(id);
-            if (dto == null) return NotFound();
-            return View(dto);
+            try
+            {
+                var dto = await _flujo.ObtenerPorIdAsync(id);
+                if (dto == null) return NotFound();
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Ocurrió un error al cargar el cliente: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // EDIT (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ClienteDto dto)
         {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            var ok = await _flujo.EditarAsync(dto);
-
-            if (!ok)
+            try
             {
-                ModelState.AddModelError("", "No se pudo actualizar el cliente.");
+                if (!ModelState.IsValid)
+                    return View(dto);
+
+                var ok = await _flujo.EditarAsync(dto);
+
+                if (!ok)
+                {
+                    ModelState.AddModelError("", "No se pudo actualizar el cliente.");
+                    return View(dto);
+                }
+
+                TempData["MensajeExito"] = "Cliente actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
                 return View(dto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al actualizar el cliente: {ex.Message}");
+                return View(dto);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, false);
+                TempData["MensajeExito"] = "Cliente desactivado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"No se pudo desactivar el cliente: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // DESACTIVAR
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Desactivar(int id)
-        {
-            await _flujo.CambiarEstadoAsync(id, false);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ACTIVAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Activar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, true);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, true);
+                TempData["MensajeExito"] = "Cliente activado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"No se pudo activar el cliente: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Inactivos));
         }
+
         public async Task<IActionResult> Details(int id)
         {
-            var cliente = await _flujo.ObtenerPorIdAsync(id);
-            if (cliente == null)
-                return NotFound();
+            try
+            {
+                var cliente = await _flujo.ObtenerPorIdAsync(id);
+                if (cliente == null)
+                    return NotFound();
 
-            var historial = await _pedidoFlujo.ObtenerHistorialClienteAsync(id);
+                var historial = await _pedidoFlujo.ObtenerHistorialClienteAsync(id);
+                ViewBag.HistorialCompras = historial;
 
-            ViewBag.HistorialCompras = historial;
-
-            return View(cliente);
+                return View(cliente);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Ocurrió un error al cargar el detalle del cliente: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

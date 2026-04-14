@@ -15,7 +15,7 @@
         </div>
 
         <hr class="tachi-sep" />
-
+        <div asp-validation-summary="All" class="text-danger"></div>
         <form asp-action="Edit" method="post" class="tachi-form">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ProductoId" />

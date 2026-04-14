@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProyectoTachi.Controllers
 {
@@ -26,9 +23,17 @@ namespace ProyectoTachi.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            await CargarProveedoresAsync();
-            await CargarProductosAsync();
-            return View(new OrdenCompraCrearDto());
+            try
+            {
+                await CargarProveedoresAsync();
+                await CargarProductosAsync();
+                return View(new OrdenCompraCrearDto());
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al cargar la pantalla de compras: {ex.Message}";
+                return View(new OrdenCompraCrearDto());
+            }
         }
 
         [HttpPost]
@@ -37,9 +42,24 @@ namespace ProyectoTachi.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    await CargarProveedoresAsync(dto.ProveedorId);
+                    await CargarProductosAsync();
+                    return View("Index", dto);
+                }
+
                 var ordenId = await _ordenFlujo.CrearOrdenAsync(dto);
                 TempData["Ok"] = $"Orden de compra creada exitosamente con ID: {ordenId}";
                 return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+
+                await CargarProveedoresAsync(dto.ProveedorId);
+                await CargarProductosAsync();
+                return View("Index", dto);
             }
             catch (Exception ex)
             {
@@ -65,13 +85,12 @@ namespace ProyectoTachi.Controllers
 
         private async Task CargarProductosAsync()
         {
-            // Usar la entidad mapeada o Dto que ya tienes en _db.Productos (que es ProductoDto en el contexto actual según vimos)
             var productos = await _db.Productos.AsNoTracking()
                 .Where(p => p.Activo)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
 
-            ViewBag.Productos = productos; 
+            ViewBag.Productos = productos;
         }
     }
 }

@@ -17,14 +17,30 @@ namespace ProyectoTachi.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var lista = await _flujo.ObtenerTodosAsync(true);
-            return View(lista);
+            try
+            {
+                var lista = await _flujo.ObtenerTodosAsync(true);
+                return View(lista);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al cargar transportistas: {ex.Message}";
+                return View(new List<TransportistaDto>());
+            }
         }
 
         public async Task<IActionResult> Inactivos()
         {
-            var lista = await _flujo.ObtenerTodosAsync(false);
-            return View(lista);
+            try
+            {
+                var lista = await _flujo.ObtenerTodosAsync(false);
+                return View(lista);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al cargar transportistas inactivos: {ex.Message}";
+                return View(new List<TransportistaDto>());
+            }
         }
 
         public IActionResult Create()
@@ -36,35 +52,82 @@ namespace ProyectoTachi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TransportistaDto dto)
         {
-            if (!ModelState.IsValid) return View(dto);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View(dto);
 
-            await _flujo.AgregarAsync(dto);
-            return RedirectToAction(nameof(Index));
+                await _flujo.AgregarAsync(dto);
+                TempData["MensajeExito"] = "Transportista creado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error al guardar transportista: {ex.Message}");
+                return View(dto);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var dto = await _flujo.ObtenerPorIdAsync(id);
-            if (dto == null) return NotFound();
+            try
+            {
+                var dto = await _flujo.ObtenerPorIdAsync(id);
+                if (dto == null) return NotFound();
 
-            return View(dto);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al cargar transportista: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TransportistaDto dto)
         {
-            if (!ModelState.IsValid) return View(dto);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View(dto);
 
-            await _flujo.EditarAsync(dto);
-            return RedirectToAction(nameof(Index));
+                await _flujo.EditarAsync(dto);
+                TempData["MensajeExito"] = "Transportista actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error al actualizar transportista: {ex.Message}");
+                return View(dto);
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Desactivar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, false);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, false);
+                TempData["MensajeExito"] = "Transportista desactivado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al desactivar: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,7 +135,16 @@ namespace ProyectoTachi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Activar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, true);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, true);
+                TempData["MensajeExito"] = "Transportista activado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al activar: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Inactivos));
         }
     }

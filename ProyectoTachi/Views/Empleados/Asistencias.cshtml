@@ -6,6 +6,19 @@
     var empleado = ViewBag.Empleado as EmpleadoDto;
     var nueva = ViewBag.NuevaAsistencia as AsistenciaDto;
 }
+@if (TempData["MensajeError"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["MensajeError"]
+    </div>
+}
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["MensajeExito"]
+    </div>
+}
 
 <h2 class="mb-2">Asistencias</h2>
 <p class="text-muted">

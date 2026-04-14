@@ -1,6 +1,5 @@
 ﻿using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
-using Flujo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +17,30 @@ namespace ProyectoTachi.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var lista = await _flujo.ObtenerTodosAsync(true);
-            return View(lista);
+            try
+            {
+                var lista = await _flujo.ObtenerTodosAsync(true);
+                return View(lista);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al cargar los proveedores: {ex.Message}";
+                return View(new List<ProveedorDto>());
+            }
         }
 
         public async Task<IActionResult> Inactivos()
         {
-            var lista = await _flujo.ObtenerTodosAsync(false);
-            return View(lista);
+            try
+            {
+                var lista = await _flujo.ObtenerTodosAsync(false);
+                return View(lista);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al cargar los proveedores inactivos: {ex.Message}";
+                return View(new List<ProveedorDto>());
+            }
         }
 
         public IActionResult Create()
@@ -34,41 +49,102 @@ namespace ProyectoTachi.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProveedorDto dto)
         {
-            if (!ModelState.IsValid) return View(dto);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View(dto);
 
-            await _flujo.AgregarAsync(dto);
-            return RedirectToAction(nameof(Index));
+                await _flujo.AgregarAsync(dto);
+                TempData["Ok"] = "Proveedor creado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al guardar el proveedor: {ex.Message}");
+                return View(dto);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var dto = await _flujo.ObtenerPorIdAsync(id);
-            if (dto == null) return NotFound();
-            return View(dto);
+            try
+            {
+                var dto = await _flujo.ObtenerPorIdAsync(id);
+                if (dto == null) return NotFound();
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al cargar el proveedor: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProveedorDto dto)
         {
-            if (!ModelState.IsValid) return View(dto);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View(dto);
 
-            await _flujo.EditarAsync(dto);
-            return RedirectToAction(nameof(Index));
+                await _flujo.EditarAsync(dto);
+                TempData["Ok"] = "Proveedor actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al actualizar el proveedor: {ex.Message}");
+                return View(dto);
+            }
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Desactivar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, false);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, false);
+                TempData["Ok"] = "Proveedor desactivado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"No se pudo desactivar el proveedor: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Activar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, true);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, true);
+                TempData["Ok"] = "Proveedor activado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"No se pudo activar el proveedor: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Inactivos));
         }
     }

@@ -18,139 +18,213 @@ namespace ProyectoTachi.Controllers
             _db = db;
         }
 
-        // LISTA ACTIVOS
         public async Task<IActionResult> Index(string nombre, decimal? precioMin, decimal? precioMax)
         {
-            var lista = await _flujo.ObtenerTodosAsync(true); 
-
-            // FILTRO POR NOMBRE
-            if (!string.IsNullOrWhiteSpace(nombre))
+            try
             {
-                lista = lista
-                    .Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
+                var lista = await _flujo.ObtenerTodosAsync(true);
 
-            // FILTRO POR PRECIO MIN
-            if (precioMin.HasValue)
+                if (!string.IsNullOrWhiteSpace(nombre))
+                {
+                    lista = lista
+                        .Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                if (precioMin.HasValue)
+                {
+                    lista = lista
+                        .Where(p => p.Precio >= precioMin.Value)
+                        .ToList();
+                }
+
+                if (precioMax.HasValue)
+                {
+                    lista = lista
+                        .Where(p => p.Precio <= precioMax.Value)
+                        .ToList();
+                }
+
+                return View(lista);
+            }
+            catch (Exception ex)
             {
-                lista = lista
-                    .Where(p => p.Precio >= precioMin.Value)
-                    .ToList();
+                TempData["Error"] = $"Error al cargar productos: {ex.Message}";
+                return View(new List<ProductoDto>());
             }
-
-            // FILTRO POR PRECIO MAX
-            if (precioMax.HasValue)
-            {
-                lista = lista
-                    .Where(p => p.Precio <= precioMax.Value)
-                    .ToList();
-            }
-
-            return View(lista);
         }
 
-        // LISTA INACTIVOS
         [HttpGet]
         public async Task<IActionResult> Inactivos()
         {
-            var productos = await _flujo.ObtenerTodosAsync(false);
-            return View(productos);
+            try
+            {
+                var productos = await _flujo.ObtenerTodosAsync(false);
+                return View(productos);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al cargar productos inactivos: {ex.Message}";
+                return View(new List<ProductoDto>());
+            }
         }
 
-        // CREATE (GET)
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await CargarCategoriasAsync();
-            await CargarUnidadesAsync();
-            return View(new ProductoDto());
+            try
+            {
+                await CargarCategoriasAsync();
+                await CargarUnidadesAsync();
+                return View(new ProductoDto());
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al cargar formulario: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Abstracciones.Modelos.ProductoDto dto)
+        public async Task<IActionResult> Create(ProductoDto dto)
         {
-            // Validaciones mínimas (después refinamos)
-            if (string.IsNullOrWhiteSpace(dto.SKU))
-                ModelState.AddModelError(nameof(dto.SKU), "SKU es requerido.");
-
-            if (string.IsNullOrWhiteSpace(dto.Nombre))
-                ModelState.AddModelError(nameof(dto.Nombre), "Nombre es requerido.");
-
-            if (dto.UnidadMedidaId <= 0)
-                ModelState.AddModelError(nameof(dto.UnidadMedidaId), "Unidad de medida es requerida.");
-
-            if (dto.Costo < 0)
-                ModelState.AddModelError(nameof(dto.Costo), "Costo no puede ser negativo.");
-
-            if (dto.Precio < 0)
-                ModelState.AddModelError(nameof(dto.Precio), "Precio no puede ser negativo.");
-
-            if (!ModelState.IsValid)
+            try
             {
-                await CargarCategoriasAsync(dto.CategoriaProductoId);
-                await CargarUnidadesAsync(dto.UnidadMedidaId);
-                return View(dto);
+                if (string.IsNullOrWhiteSpace(dto.SKU))
+                    ModelState.AddModelError(nameof(dto.SKU), "SKU es requerido.");
+
+                if (string.IsNullOrWhiteSpace(dto.Nombre))
+                    ModelState.AddModelError(nameof(dto.Nombre), "Nombre es requerido.");
+
+                if (dto.UnidadMedidaId <= 0)
+                    ModelState.AddModelError(nameof(dto.UnidadMedidaId), "Unidad de medida es requerida.");
+
+                if (dto.Costo < 0)
+                    ModelState.AddModelError(nameof(dto.Costo), "Costo no puede ser negativo.");
+
+                if (dto.Precio < 0)
+                    ModelState.AddModelError(nameof(dto.Precio), "Precio no puede ser negativo.");
+
+                if (!ModelState.IsValid)
+                {
+                    await CargarCategoriasAsync(dto.CategoriaProductoId);
+                    await CargarUnidadesAsync(dto.UnidadMedidaId);
+                    return View(dto);
+                }
+
+                await _flujo.AgregarAsync(dto);
+
+                TempData["Ok"] = "Producto creado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error al guardar producto: {ex.Message}");
             }
 
-            await _flujo.AgregarAsync(dto);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // EDIT (GET)
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var dto = await _flujo.ObtenerPorIdAsync(id);
-            if (dto == null) return NotFound();
             await CargarCategoriasAsync(dto.CategoriaProductoId);
             await CargarUnidadesAsync(dto.UnidadMedidaId);
             return View(dto);
         }
 
-        // EDIT (POST)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var dto = await _flujo.ObtenerPorIdAsync(id);
+                if (dto == null) return NotFound();
+
+                await CargarCategoriasAsync(dto.CategoriaProductoId);
+                await CargarUnidadesAsync(dto.UnidadMedidaId);
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al cargar producto: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductoDto dto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                await CargarCategoriasAsync(dto.CategoriaProductoId);
-                await CargarUnidadesAsync(dto.UnidadMedidaId);
-                return View(dto);
+                if (!ModelState.IsValid)
+                {
+                    await CargarCategoriasAsync(dto.CategoriaProductoId);
+                    await CargarUnidadesAsync(dto.UnidadMedidaId);
+                    return View(dto);
+                }
+
+                var ok = await _flujo.EditarAsync(dto);
+
+                if (!ok)
+                {
+                    ModelState.AddModelError("", "No se pudo actualizar el producto.");
+                }
+                else
+                {
+                    TempData["Ok"] = "Producto actualizado correctamente.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error al actualizar producto: {ex.Message}");
             }
 
-            var ok = await _flujo.EditarAsync(dto);
-            if (!ok)
-            {
-                ModelState.AddModelError("", "No se pudo actualizar el producto.");
-                await CargarCategoriasAsync(dto.CategoriaProductoId);
-                await CargarUnidadesAsync(dto.UnidadMedidaId);
-                return View(dto);
-            }
-
-            return RedirectToAction(nameof(Index));
+            await CargarCategoriasAsync(dto.CategoriaProductoId);
+            await CargarUnidadesAsync(dto.UnidadMedidaId);
+            return View(dto);
         }
 
-        // DESACTIVAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Desactivar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, false);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, false);
+                TempData["Ok"] = "Producto desactivado.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al desactivar: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        // ACTIVAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Activar(int id)
         {
-            await _flujo.CambiarEstadoAsync(id, true);
+            try
+            {
+                await _flujo.CambiarEstadoAsync(id, true);
+                TempData["Ok"] = "Producto activado.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error al activar: {ex.Message}";
+            }
+
             return RedirectToAction(nameof(Inactivos));
         }
+
         private async Task CargarCategoriasAsync(int? seleccionada = null)
         {
             var cats = await _db.CategoriasProducto
@@ -160,6 +234,7 @@ namespace ProyectoTachi.Controllers
 
             ViewBag.Categorias = new SelectList(cats, "CategoriaProductoId", "Nombre", seleccionada);
         }
+
         private async Task CargarUnidadesAsync(int? seleccionada = null)
         {
             var unidades = await _db.UnidadesMedida

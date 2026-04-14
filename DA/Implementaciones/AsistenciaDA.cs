@@ -54,10 +54,20 @@ namespace DA.Implementaciones
 
         public async Task AgregarAsync(AsistenciaDto dto)
         {
+            var yaExiste = await _context.Asistencias
+                .AnyAsync(a => a.EmpleadoId == dto.EmpleadoId
+                            && a.Fecha.Date == dto.Fecha.Date);
+
+            if (yaExiste)
+            {
+                throw new InvalidOperationException(
+                    $"Ya se registró la asistencia de este empleado para la fecha {dto.Fecha:dd/MM/yyyy}.");
+            }
+
             var entidad = new Asistencia
             {
                 EmpleadoId = dto.EmpleadoId,
-                Fecha = dto.Fecha,
+                Fecha = dto.Fecha.Date,
                 Tipo = dto.Tipo,
                 HoraEntrada = dto.HoraEntrada,
                 HoraSalida = dto.HoraSalida

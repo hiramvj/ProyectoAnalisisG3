@@ -2,6 +2,19 @@
 @{
     ViewData["Title"] = "Proveedores Inactivos";
 }
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Ok"]
+    </div>
+}
 
 <div class="container-fluid">
 
