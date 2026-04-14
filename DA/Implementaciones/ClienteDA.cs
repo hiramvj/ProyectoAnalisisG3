@@ -20,7 +20,8 @@ namespace DA.Implementaciones
         public async Task<List<ClienteDto>> ListarPorEstadoAsync(bool activo)
         {
             return await _db.Clientes
-                .Where(c => c.Activo == activo) // LINQ instead of EXEC
+                .Where(c => c.Activo == activo)
+                .OrderByDescending(c => c.FechaCreacion)
                 .AsNoTracking()
                 .ToListAsync();
         }

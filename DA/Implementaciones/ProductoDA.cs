@@ -21,6 +21,7 @@ namespace DA.Implementaciones
         {
             return await _db.Productos
                 .Where(p => p.Activo == activo)
+                .OrderByDescending(p => p.FechaCreacion)
                 .AsNoTracking()
                 .ToListAsync();
         }
