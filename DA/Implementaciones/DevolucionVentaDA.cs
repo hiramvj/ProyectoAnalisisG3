@@ -58,43 +58,37 @@ namespace DA.Implementaciones
             if (factura.Estado == "DEVUELTA")
                 throw new Exception("Esta factura ya fue devuelta totalmente.");
 
-            // Filtrar solo líneas con cantidad > 0
             var lineasValidas = lineas.Where(l => l.CantidadDevuelta > 0).ToList();
+
             if (!lineasValidas.Any())
                 throw new Exception("Debe indicar al menos un producto a devolver.");
 
-            // Validar cantidades
-            foreach (var linea in lineasValidas)
-            {
-                var detFactura = factura.Detalles.FirstOrDefault(d => d.ProductoId == linea.ProductoId);
-                if (detFactura == null)
-                    throw new Exception($"El producto #{linea.ProductoId} no pertenece a esta factura.");
-
-                if (linea.CantidadDevuelta > detFactura.Cantidad)
-                    throw new Exception($"La cantidad a devolver ({linea.CantidadDevuelta}) excede la facturada ({detFactura.Cantidad}) para el producto #{linea.ProductoId}.");
-            }
-
             using var transaction = await _db.Database.BeginTransactionAsync();
+
             try
             {
-                // Determinar si es total o parcial
-                bool esTotal = true;
-                foreach (var det in factura.Detalles)
+                // 🔥 VALIDAR cantidades
+                foreach (var linea in lineasValidas)
                 {
-                    var linea = lineasValidas.FirstOrDefault(l => l.ProductoId == det.ProductoId);
-                    if (linea == null || linea.CantidadDevuelta < det.Cantidad)
-                    {
-                        esTotal = false;
-                        break;
-                    }
+                    var detFactura = factura.Detalles.FirstOrDefault(d => d.ProductoId == linea.ProductoId);
+
+                    if (detFactura == null)
+                        throw new Exception($"Producto #{linea.ProductoId} no pertenece a la factura.");
+
+                    if (linea.CantidadDevuelta > detFactura.Cantidad)
+                        throw new Exception($"Cantidad inválida para producto #{linea.ProductoId}");
                 }
 
-                // Calcular montos
+                // 🔥 Calcular montos
                 decimal subtotal = lineasValidas.Sum(l => l.CantidadDevuelta * l.PrecioUnitario);
                 decimal impuesto = Math.Round(subtotal * 0.13m, 2);
                 decimal total = subtotal + impuesto;
 
-                // Crear devolución
+                bool esTotal = factura.Detalles.All(d =>
+                    lineasValidas.Any(l => l.ProductoId == d.ProductoId && l.CantidadDevuelta == d.Cantidad)
+                );
+
+                // 🔥 Crear devolución
                 var devolucion = new DevolucionVenta
                 {
                     FacturaId = facturaId,
@@ -108,30 +102,28 @@ namespace DA.Implementaciones
                 _db.DevolucionesVenta.Add(devolucion);
                 await _db.SaveChangesAsync();
 
-                // Crear detalles y reponer stock
+                // 🔥 Crear detalles + actualizar stock
                 foreach (var linea in lineasValidas)
                 {
-                    var detalle = new DevolucionVentaDetalle
+                    _db.DevolucionesVentaDetalle.Add(new DevolucionVentaDetalle
                     {
                         DevolucionVentaId = devolucion.DevolucionVentaId,
                         ProductoId = linea.ProductoId,
                         CantidadDevuelta = linea.CantidadDevuelta,
                         PrecioUnitario = linea.PrecioUnitario
-                    };
-                    _db.DevolucionesVentaDetalle.Add(detalle);
+                    });
 
-                    // Reponer stock
                     var producto = await _db.Productos.FindAsync(linea.ProductoId);
                     if (producto != null)
-                    {
                         producto.Stock += linea.CantidadDevuelta;
-                    }
                 }
 
-                // Crear nota de crédito
+                await _db.SaveChangesAsync();
+
+                // 🔥 Crear nota de crédito
                 int maxNumero = await _db.NotasCredito.MaxAsync(n => (int?)n.NumeroNotaCredito) ?? 0;
 
-                var notaCredito = new NotaCredito
+                var nota = new NotaCredito
                 {
                     DevolucionVentaId = devolucion.DevolucionVentaId,
                     NumeroNotaCredito = maxNumero + 1,
@@ -142,9 +134,9 @@ namespace DA.Implementaciones
                     Estado = "EMITIDA"
                 };
 
-                _db.NotasCredito.Add(notaCredito);
+                _db.NotasCredito.Add(nota);
 
-                // Actualizar estado de factura
+                // 🔥 Actualizar estado factura
                 factura.Estado = esTotal ? "DEVUELTA" : "DEVOLUCION_PARCIAL";
 
                 await _db.SaveChangesAsync();
@@ -152,10 +144,15 @@ namespace DA.Implementaciones
 
                 return devolucion.DevolucionVentaId;
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw;
+
+                throw new Exception(
+                    ex.InnerException?.Message
+                    ?? ex.GetBaseException().Message
+                    ?? ex.Message
+                );
             }
         }
 
