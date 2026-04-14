@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using DA.Contexto;
 using Microsoft.AspNetCore.Authorization;
@@ -147,13 +147,7 @@ namespace ProyectoTachi.Controllers
         private async Task CargarTransportistasAsync(int? seleccionado = null)
         {
             var transportistas = await _transportistaFlujo.ObtenerTodosAsync(true);
-
-            ViewBag.Transportistas = new SelectList(
-                transportistas.OrderBy(t => t.NombreCompleto),
-                "TransportistaId",
-                "NombreCompleto",
-                seleccionado
-            );
+            ViewBag.Transportistas = transportistas.OrderBy(t => t.NombreCompleto).ToList();
         }
 
         private async Task<List<SelectListItem>> ObtenerPedidosDisponiblesAsync()

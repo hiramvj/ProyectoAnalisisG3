@@ -104,8 +104,8 @@ namespace ProyectoTachi.Controllers
             var clientes = await _clienteFlujo.ObtenerTodosAsync(true);
             var productos = await _productoFlujo.ObtenerTodosAsync(true);
 
-            ViewBag.Clientes = new SelectList(clientes, "ClienteId", "NombreCompleto", filtro.ClienteId);
-            ViewBag.Productos = new SelectList(productos, "ProductoId", "Nombre", filtro.ProductoId);
+            ViewBag.Clientes  = clientes.OrderBy(c => c.NombreCompleto).ToList();
+            ViewBag.Productos = productos.OrderBy(p => p.Nombre).ToList();
         }
     }
 }

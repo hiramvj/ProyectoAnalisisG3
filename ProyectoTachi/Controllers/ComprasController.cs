@@ -80,7 +80,7 @@ namespace ProyectoTachi.Controllers
                 .OrderBy(p => p.NombreLegal)
                 .ToListAsync();
 
-            ViewBag.Proveedores = new SelectList(proveedores, "ProveedorId", "NombreLegal", seleccionado);
+            ViewBag.Proveedores = proveedores;
         }
 
         private async Task CargarProductosAsync()

@@ -1,7 +1,9 @@
-﻿@model Abstracciones.Modelos.RutaEntregaDto
-
+@model Abstracciones.Modelos.RutaEntregaDto
 @{
     ViewData["Title"] = "Crear Ruta";
+    var transportistas = ViewBag.Transportistas as IEnumerable<Abstracciones.Modelos.TransportistaDto> ?? Enumerable.Empty<Abstracciones.Modelos.TransportistaDto>();
+    var transportistasJson = System.Text.Json.JsonSerializer.Serialize(
+        transportistas.Select(t => new { id = t.TransportistaId, nombre = t.NombreCompleto }));
 }
 
 <h2 class="mb-3">Crear Ruta</h2>
@@ -24,10 +26,12 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="TransportistaId" class="form-label"></label>
-                <select asp-for="TransportistaId" asp-items="ViewBag.Transportistas" class="form-select">
-                    <option value="">Seleccione...</option>
-                </select>
+                <label class="form-label fw-semibold">Transportista</label>
+                <div class="tachi-search-wrap" data-items='@Html.Raw(transportistasJson)'>
+                    <input type="text" class="form-control tachi-search-input" placeholder="Buscar transportista por nombre..." autocomplete="off">
+                    <div class="tachi-search-dropdown"></div>
+                    <input type="hidden" asp-for="TransportistaId" class="tachi-search-hidden" required>
+                </div>
                 <span asp-validation-for="TransportistaId" class="text-danger"></span>
             </div>
 

@@ -1,54 +1,64 @@
-@model Abstracciones.Modelos.CuentaPorPagarDto
+@model CuentaPorPagarDto
+@using Abstracciones.Modelos
 @{
-    ViewData["Title"] = "Registrar Factura";
+    ViewData["Title"] = "Registrar Cuenta por Pagar";
+    var proveedores = ViewBag.Proveedores as List<ProveedorDto> ?? new();
+    var proveedoresJson = System.Text.Json.JsonSerializer.Serialize(
+        proveedores.Select(p => new { id = p.ProveedorId, nombre = p.NombreLegal }));
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice me-2"></i>Registrar Cuenta por Pagar</h4>
-            </div>
-            <div class="card-body p-4">
-                <form asp-action="CrearFactura" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h4 class="mb-0 text-primary"><i class="fas fa-file-invoice me-2"></i>Registrar Cuenta por Pagar</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CrearFactura" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="ProveedorId" class="form-label fw-bold">ID Proveedor <span class="text-muted">(simplificado para demo)</span></label>
-                            <input asp-for="ProveedorId" class="form-control" type="number" required />
-                            <span asp-validation-for="ProveedorId" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="NumeroFactura" class="form-label fw-bold">Número de Factura</label>
-                            <input asp-for="NumeroFactura" class="form-control" placeholder="Ej. FAC-10020" required />
-                            <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="FechaEmision" class="form-label fw-bold">Fecha de Emisión</label>
-                            <input asp-for="FechaEmision" class="form-control" type="date" required />
-                            <span asp-validation-for="FechaEmision" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="FechaVencimiento" class="form-label fw-bold">Fecha de Vencimiento</label>
-                            <input asp-for="FechaVencimiento" class="form-control" type="date" required />
-                            <span asp-validation-for="FechaVencimiento" class="text-danger small"></span>
-                        </div>
-                        <div class="col-12">
-                            <label asp-for="MontoOriginal" class="form-label fw-bold">Monto Total a Pagar</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₡</span>
-                                <input asp-for="MontoOriginal" class="form-control" type="number" step="0.01" min="0.01" required />
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Proveedor</label>
+                                <div class="tachi-search-wrap" data-items='@Html.Raw(proveedoresJson)'>
+                                    <input type="text" class="form-control tachi-search-input" placeholder="Buscar proveedor por nombre..." autocomplete="off">
+                                    <div class="tachi-search-dropdown"></div>
+                                    <input type="hidden" asp-for="ProveedorId" class="tachi-search-hidden" required>
+                                </div>
+                                <span asp-validation-for="ProveedorId" class="text-danger small"></span>
                             </div>
-                            <span asp-validation-for="MontoOriginal" class="text-danger small"></span>
+                            <div class="col-md-6">
+                                <label asp-for="NumeroFactura" class="form-label fw-bold">Número de Factura</label>
+                                <input asp-for="NumeroFactura" class="form-control" placeholder="Ej. FAC-10020" required />
+                                <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="FechaEmision" class="form-label fw-bold">Fecha de Emisión</label>
+                                <input asp-for="FechaEmision" class="form-control" type="date" required />
+                                <span asp-validation-for="FechaEmision" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="FechaVencimiento" class="form-label fw-bold">Fecha de Vencimiento</label>
+                                <input asp-for="FechaVencimiento" class="form-control" type="date" required />
+                                <span asp-validation-for="FechaVencimiento" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="MontoOriginal" class="form-label fw-bold">Monto Total a Pagar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">&#8353;</span>
+                                    <input asp-for="MontoOriginal" class="form-control" type="number" step="0.01" min="0.01" required />
+                                </div>
+                                <span asp-validation-for="MontoOriginal" class="text-danger small"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mt-4 text-end">
-                        <a asp-action="Index" class="btn btn-light me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Guardar Factura</button>
-                    </div>
-                </form>
+                        <div class="mt-4 text-end">
+                            <a asp-action="Index" class="btn btn-light me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Guardar Factura</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

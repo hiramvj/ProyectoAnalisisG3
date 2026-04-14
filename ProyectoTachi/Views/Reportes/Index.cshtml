@@ -1,9 +1,21 @@
-﻿@model IEnumerable<Abstracciones.Modelos.ReporteVentaDto>
+@model IEnumerable<Abstracciones.Modelos.ReporteVentaDto>
 
 @{
     ViewData["Title"] = "Reportes";
     var filtro = ViewBag.Filtro as Abstracciones.Modelos.ReporteVentasFiltroDto
                  ?? new Abstracciones.Modelos.ReporteVentasFiltroDto();
+
+    var clientes  = ViewBag.Clientes  as List<Abstracciones.Modelos.ClienteDto>  ?? new();
+    var productos = ViewBag.Productos as List<Abstracciones.Modelos.ProductoDto> ?? new();
+
+    var clientesJson  = System.Text.Json.JsonSerializer.Serialize(
+        clientes.Select(c => new { id = c.ClienteId, nombre = c.NombreCompleto }));
+    var productosJson = System.Text.Json.JsonSerializer.Serialize(
+        productos.Select(p => new { id = p.ProductoId, nombre = p.Nombre }));
+
+    // Find current filter names to pre-fill inputs
+    var clienteActual  = clientes.FirstOrDefault(c => c.ClienteId  == filtro.ClienteId);
+    var productoActual = productos.FirstOrDefault(p => p.ProductoId == filtro.ProductoId);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -31,41 +43,45 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
                     <label class="form-label">Desde</label>
-                    <input type="date"
-                           class="form-control"
-                           name="Desde"
-                           value="@(filtro.Desde?.ToString("yyyy-MM-dd"))" />
+                    <input type="date" class="form-control" name="Desde" value="@(filtro.Desde?.ToString("yyyy-MM-dd"))" />
                 </div>
 
                 <div class="col-md-2">
                     <label class="form-label">Hasta</label>
-                    <input type="date"
-                           class="form-control"
-                           name="Hasta"
-                           value="@(filtro.Hasta?.ToString("yyyy-MM-dd"))" />
+                    <input type="date" class="form-control" name="Hasta" value="@(filtro.Hasta?.ToString("yyyy-MM-dd"))" />
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Cliente</label>
-                    <select class="form-select" name="ClienteId" asp-items="ViewBag.Clientes">
-                        <option value="">-- Todos --</option>
-                    </select>
+                    <label class="form-label">Cliente <small class="text-muted">(opcional)</small></label>
+                    <div class="tachi-search-wrap" data-items='@Html.Raw(clientesJson)'>
+                        <input type="text" class="form-control tachi-search-input"
+                               placeholder="Buscar cliente..."
+                               value="@(clienteActual?.NombreCompleto ?? "")"
+                               autocomplete="off">
+                        <div class="tachi-search-dropdown"></div>
+                        <input type="hidden" name="ClienteId" class="tachi-search-hidden" value="@filtro.ClienteId">
+                    </div>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Producto</label>
-                    <select class="form-select" name="ProductoId" asp-items="ViewBag.Productos">
-                        <option value="">-- Todos --</option>
-                    </select>
+                    <label class="form-label">Producto <small class="text-muted">(opcional)</small></label>
+                    <div class="tachi-search-wrap" data-items='@Html.Raw(productosJson)'>
+                        <input type="text" class="form-control tachi-search-input"
+                               placeholder="Buscar producto..."
+                               value="@(productoActual?.Nombre ?? "")"
+                               autocomplete="off">
+                        <div class="tachi-search-dropdown"></div>
+                        <input type="hidden" name="ProductoId" class="tachi-search-hidden" value="@filtro.ProductoId">
+                    </div>
                 </div>
 
                 <div class="col-md-2">
                     <label class="form-label">Estado</label>
                     <select class="form-select" name="Estado">
                         <option value="">-- Todos --</option>
-                        <option value="CREADA" selected="@(filtro.Estado == "CREADA")">CREADA</option>
-                        <option value="ENTREGADA" selected="@(filtro.Estado == "ENTREGADA")">ENTREGADA</option>
-                        <option value="CANCELADA" selected="@(filtro.Estado == "CANCELADA")">CANCELADA</option>
+                        <option value="CREADA"     selected="@(filtro.Estado == "CREADA")">CREADA</option>
+                        <option value="ENTREGADA"  selected="@(filtro.Estado == "ENTREGADA")">ENTREGADA</option>
+                        <option value="CANCELADA"  selected="@(filtro.Estado == "CANCELADA")">CANCELADA</option>
                     </select>
                 </div>
 
@@ -115,8 +131,8 @@
                             <td>@item.ClienteNombre</td>
                             <td>@item.ProductoNombre</td>
                             <td>@item.Cantidad</td>
-                            <td>₡ @item.PrecioUnitario.ToString("N2")</td>
-                            <td>₡ @item.TotalLinea.ToString("N2")</td>
+                            <td>&#8353; @item.PrecioUnitario.ToString("N2")</td>
+                            <td>&#8353; @item.TotalLinea.ToString("N2")</td>
                             <td>
                                 @if (item.Estado == "CREADA")
                                 {

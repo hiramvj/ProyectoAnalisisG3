@@ -1,4 +1,4 @@
-﻿@model List<Abstracciones.Modelos.PedidoVentaListadoDto>
+@model List<Abstracciones.Modelos.PedidoVentaListadoDto>
 @{
     ViewData["Title"] = "Historial de Ventas";
 }
@@ -51,11 +51,20 @@
 
                 <div class="col-lg-2">
                     <label class="form-label">Cliente</label>
-                    <select name="clienteId"
-                            class="form-select"
-                            asp-items="ViewBag.Clientes">
-                        <option value="">-- Todos --</option>
-                    </select>
+                    @{
+                        var clientes = ViewBag.Clientes as List<Abstracciones.Modelos.ClienteDto> ?? new List<Abstracciones.Modelos.ClienteDto>();
+                        var clientesJsonH = System.Text.Json.JsonSerializer.Serialize(clientes.Select(c => new { id = c.ClienteId, nombre = c.NombreCompleto }));
+                        var clienteSelId = ViewBag.ClienteId as int?;
+                        var clienteSelNombre = clientes.FirstOrDefault(c => c.ClienteId == clienteSelId)?.NombreCompleto ?? "";
+                    }
+                    <div class="tachi-search-wrap" data-items='@Html.Raw(clientesJsonH)'>
+                        <input type="text" class="form-control tachi-search-input"
+                               placeholder="Buscar cliente..."
+                               value="@clienteSelNombre"
+                               autocomplete="off">
+                        <div class="tachi-search-dropdown"></div>
+                        <input type="hidden" name="clienteId" class="tachi-search-hidden" value="@(clienteSelId?.ToString() ?? "")">
+                    </div>
                 </div>
 
                 <div class="col-lg-2">

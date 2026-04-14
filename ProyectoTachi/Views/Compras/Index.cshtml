@@ -1,20 +1,21 @@
 @model Abstracciones.Modelos.OrdenCompraCrearDto
 @{
     ViewData["Title"] = "Compras / Órdenes";
-    var productos = ViewBag.Productos as List<Abstracciones.Modelos.ProductoDto> ?? new();
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
+    var productos   = ViewBag.Productos  as List<Abstracciones.Modelos.ProductoDto>  ?? new();
+    var proveedores = ViewBag.Proveedores as List<Abstracciones.Modelos.ProveedorDto> ?? new();
+    var productosJson   = System.Text.Json.JsonSerializer.Serialize(
+        productos.Select(p => new { id = p.ProductoId, nombre = p.Nombre, extra = "₡" + p.Costo.ToString("N0"), costo = p.Costo }));
+    var proveedoresJson = System.Text.Json.JsonSerializer.Serialize(
+        proveedores.Select(p => new { id = p.ProveedorId, nombre = p.NombreLegal }));
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 @if (TempData["Ok"] != null)
 {
-    <div class="alert alert-success">
-        @TempData["Ok"]
-    </div>
+    <div class="alert alert-success">@TempData["Ok"]</div>
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -23,15 +24,6 @@
         <small class="text-muted">Creación de órdenes de compra a proveedores.</small>
     </div>
 </div>
-
-@if (TempData["Ok"] != null)
-{
-    <div class="alert alert-success">@TempData["Ok"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
 
 <div class="row g-3">
     <!-- IZQUIERDA -->
@@ -45,8 +37,12 @@
 
                     <div class="row g-3 mb-2">
                         <div class="col-md-6">
-                            <label class="form-label">Proveedor</label>
-                            <select class="form-select" asp-for="ProveedorId" asp-items="ViewBag.Proveedores"></select>
+                            <label class="form-label fw-semibold">Proveedor</label>
+                            <div class="tachi-search-wrap" data-items='@Html.Raw(proveedoresJson)'>
+                                <input type="text" class="form-control tachi-search-input" placeholder="Buscar proveedor por nombre..." autocomplete="off">
+                                <div class="tachi-search-dropdown"></div>
+                                <input type="hidden" name="ProveedorId" class="tachi-search-hidden" required>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -83,13 +79,11 @@
                             <tbody id="tbodyLineas">
                                 <tr>
                                     <td>
-                                        <select class="form-select producto-select" name="Lineas[0].ProductoId">
-                                            <option value="0">-- Seleccionar --</option>
-                                            @foreach (var p in productos)
-                                            {
-                                                <option value="@p.ProductoId" data-costo="@p.Costo">@p.Nombre</option>
-                                            }
-                                        </select>
+                                        <div class="tachi-search-wrap" data-items='@Html.Raw(productosJson)'>
+                                            <input type="text" class="form-control tachi-search-input" placeholder="Buscar producto..." autocomplete="off">
+                                            <div class="tachi-search-dropdown"></div>
+                                            <input type="hidden" class="tachi-search-hidden producto-hidden" name="Lineas[0].ProductoId">
+                                        </div>
                                     </td>
                                     <td>
                                         <input class="form-control cantidad-input" type="number" name="Lineas[0].Cantidad" value="1" min="1" />
@@ -98,7 +92,7 @@
                                         <input class="form-control costo-input text-end" type="number" step="0.01" name="Lineas[0].CostoUnitario" value="0" min="0" />
                                     </td>
                                     <td class="text-end">
-                                        <span class="total-span fw-semibold">₡ 0.00</span>
+                                        <span class="total-span fw-semibold">&#8353; 0.00</span>
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-link text-danger btn-sm btnQuitar">
@@ -128,21 +122,132 @@
 
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Subtotal:</span>
-                    <span id="lblSubtotal">₡ 0.00</span>
+                    <span id="lblSubtotal">&#8353; 0.00</span>
                 </div>
 
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">IVA (13%):</span>
-                    <span id="lblIva">₡ 0.00</span>
+                    <span id="lblIva">&#8353; 0.00</span>
                 </div>
 
                 <hr />
 
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-bold fs-5">Total:</span>
-                    <span class="fw-bold fs-4 text-primary" id="lblTotal">₡ 0.00</span>
+                    <span class="fw-bold fs-4 text-primary" id="lblTotal">&#8353; 0.00</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        var productosData = @Html.Raw(productosJson);
+
+        function fmt(n) {
+            try { return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(n); }
+            catch { return '&#8353; ' + (n || 0).toFixed(2); }
+        }
+
+        function getCostoFromHidden(hiddenEl) {
+            var id = parseInt(hiddenEl.value);
+            if (!id) return 0;
+            var p = productosData.find(function(x) { return x.id === id; });
+            return p ? (p.costo || 0) : 0;
+        }
+
+        function recalcular() {
+            var subtotal = 0;
+            document.querySelectorAll('#tbodyLineas tr').forEach(function(tr) {
+                var hidden    = tr.querySelector('.producto-hidden');
+                var qty       = tr.querySelector('.cantidad-input');
+                var costoInp  = tr.querySelector('.costo-input');
+                var totalSpan = tr.querySelector('.total-span');
+
+                // auto-fill cost when product selected
+                if (hidden && hidden.value && costoInp && parseFloat(costoInp.value) === 0) {
+                    costoInp.value = getCostoFromHidden(hidden).toFixed(2);
+                }
+
+                var costo    = parseFloat(costoInp ? costoInp.value : '0') || 0;
+                var cantidad = parseInt(qty ? qty.value : '0') || 0;
+                var totalLinea = costo * cantidad;
+                if (totalSpan) totalSpan.textContent = fmt(totalLinea);
+                subtotal += totalLinea;
+            });
+            var iva   = subtotal * 0.13;
+            var total = subtotal + iva;
+            document.getElementById('lblSubtotal').textContent = fmt(subtotal);
+            document.getElementById('lblIva').textContent      = fmt(iva);
+            document.getElementById('lblTotal').textContent    = fmt(total);
+        }
+
+        function reindexarNames() {
+            document.querySelectorAll('#tbodyLineas tr').forEach(function(tr, i) {
+                var h = tr.querySelector('.producto-hidden');
+                var q = tr.querySelector('.cantidad-input');
+                var c = tr.querySelector('.costo-input');
+                if (h) h.setAttribute('name', 'Lineas[' + i + '].ProductoId');
+                if (q) q.setAttribute('name', 'Lineas[' + i + '].Cantidad');
+                if (c) c.setAttribute('name', 'Lineas[' + i + '].CostoUnitario');
+            });
+        }
+
+        function buildProductoSearchHTML(idx) {
+            var items = JSON.stringify(productosData).replace(/'/g, "&#39;");
+            return '<div class="tachi-search-wrap" data-items=\'' + items + '\'>' +
+                   '<input type="text" class="form-control tachi-search-input" placeholder="Buscar producto..." autocomplete="off">' +
+                   '<div class="tachi-search-dropdown"></div>' +
+                   '<input type="hidden" class="tachi-search-hidden producto-hidden" name="Lineas[' + idx + '].ProductoId">' +
+                   '</div>';
+        }
+
+        document.getElementById('btnAgregarLinea').addEventListener('click', function() {
+            var tbody = document.getElementById('tbodyLineas');
+            var idx   = tbody.querySelectorAll('tr').length;
+            var row   = document.createElement('tr');
+            row.innerHTML =
+                '<td>' + buildProductoSearchHTML(idx) + '</td>' +
+                '<td><input class="form-control cantidad-input" type="number" name="Lineas[' + idx + '].Cantidad" value="1" min="1" /></td>' +
+                '<td><input class="form-control costo-input text-end" type="number" step="0.01" name="Lineas[' + idx + '].CostoUnitario" value="0" min="0" /></td>' +
+                '<td class="text-end"><span class="total-span fw-semibold">&#8353; 0.00</span></td>' +
+                '<td class="text-center"><button type="button" class="btn btn-link text-danger btn-sm btnQuitar"><i class="fa-solid fa-xmark"></i></button></td>';
+            tbody.appendChild(row);
+            tachiInitAll();
+            recalcular();
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('producto-hidden') ||
+                e.target.classList.contains('cantidad-input') ||
+                e.target.classList.contains('costo-input')) {
+                recalcular();
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.btnQuitar');
+            if (!btn) return;
+            var tbody = document.getElementById('tbodyLineas');
+            var rows  = tbody.querySelectorAll('tr');
+            if (rows.length <= 1) {
+                var tr = rows[0];
+                var h   = tr.querySelector('.producto-hidden');
+                var inp = tr.querySelector('.tachi-search-input');
+                var c   = tr.querySelector('.costo-input');
+                if (h) h.value = '';
+                if (inp) inp.value = '';
+                if (c) c.value = '0';
+                tr.querySelector('.cantidad-input').value = 1;
+                recalcular();
+                return;
+            }
+            btn.closest('tr').remove();
+            reindexarNames();
+            recalcular();
+        });
+
+        recalcular();
+    </script>
+}

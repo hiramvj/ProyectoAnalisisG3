@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using DA.Contexto;
 using Microsoft.AspNetCore.Authorization;
@@ -148,7 +148,7 @@ namespace ProyectoTachi.Controllers
                 .OrderBy(c => c.NombreCompleto)
                 .ToListAsync();
 
-            ViewBag.Clientes = new SelectList(clientes, "ClienteId", "NombreCompleto", seleccionado);
+            ViewBag.Clientes = clientes;
         }
 
         private async Task CargarProductosAsync()

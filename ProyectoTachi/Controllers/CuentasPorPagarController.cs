@@ -10,10 +10,12 @@ namespace ProyectoTachi.Controllers
     public class CuentasPorPagarController : Controller
     {
         private readonly ICuentasPorPagarFlujo _cuentasFlujo;
+        private readonly IProveedorFlujo _proveedorFlujo;
 
-        public CuentasPorPagarController(ICuentasPorPagarFlujo cuentasFlujo)
+        public CuentasPorPagarController(ICuentasPorPagarFlujo cuentasFlujo, IProveedorFlujo proveedorFlujo)
         {
             _cuentasFlujo = cuentasFlujo;
+            _proveedorFlujo = proveedorFlujo;
         }
 
         // Listado de cuentas
@@ -25,10 +27,9 @@ namespace ProyectoTachi.Controllers
 
         // Formulario para crear una nueva factura/cuenta
         [HttpGet]
-        public IActionResult CrearFactura()
+        public async Task<IActionResult> CrearFactura()
         {
-            // Asume que un SelectList de proveedores se llena en la vista usando ViewComponent o ViewBag.
-            // Lo manejaremos pasándolo desde el controlador o simplificando en vista.
+            await CargarProveedoresAsync();
             return View(new CuentaPorPagarDto { FechaEmision = DateTime.Today, FechaVencimiento = DateTime.Today.AddDays(30) });
         }
 
@@ -37,7 +38,10 @@ namespace ProyectoTachi.Controllers
         public async Task<IActionResult> CrearFactura(CuentaPorPagarDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                await CargarProveedoresAsync();
                 return View(dto);
+            }
 
             try
             {
@@ -48,11 +52,19 @@ namespace ProyectoTachi.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
+                await CargarProveedoresAsync();
                 return View(dto);
             }
         }
 
+        private async Task CargarProveedoresAsync()
+        {
+            var proveedores = await _proveedorFlujo.ObtenerTodosAsync(true);
+            ViewBag.Proveedores = proveedores.OrderBy(p => p.NombreLegal).ToList();
+        }
+
         // Detalle de la cuenta y listado de sus pagos
+
         public async Task<IActionResult> Detalle(int id)
         {
             var cuenta = await _cuentasFlujo.ObtenerCuentaAsync(id);

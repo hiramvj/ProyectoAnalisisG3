@@ -1,14 +1,22 @@
 /* =========================
    BASE
    ========================= */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 .tachi-bg {
     background: #f3f5fa;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color: #0b1f33;
+    height: 100%;
 }
 
 .tachi-shell {
-    min-height: 100vh;
+    height: 100vh;
     display: grid;
     grid-template-columns: 260px 1fr;
     overflow: hidden;
@@ -21,11 +29,10 @@
     background: linear-gradient(180deg, #0b2a4a 0%, #071e34 100%);
     color: #fff;
     padding: 18px 14px;
-    position: sticky;
-    top: 0;
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
+    flex-shrink: 0;
 }
     .tachi-sidebar::-webkit-scrollbar {
         width: 8px;
@@ -113,8 +120,10 @@
 .tachi-main {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
     min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .tachi-topbar {
@@ -362,12 +371,106 @@
    RESPONSIVE
    ========================= */
 @media (max-width: 992px) {
+    html, body {
+        overflow: auto;
+    }
+
+    .tachi-bg {
+        height: auto;
+    }
+
     .tachi-shell {
         grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
     }
 
     .tachi-sidebar {
-        position: relative;
         height: auto;
+        max-height: none;
     }
+
+    .tachi-main {
+        height: auto;
+        overflow: visible;
+    }
+}
+
+/* =========================
+   AUTOCOMPLETE SEARCH
+   ========================= */
+.tachi-search-wrap {
+    position: relative;
+}
+
+.tachi-search-input {
+    border-radius: 8px;
+}
+
+.tachi-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+}
+
+.tachi-search-wrap.open .tachi-search-input {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.tachi-search-item {
+    padding: 9px 13px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background .1s;
+}
+
+.tachi-search-item:last-child {
+    border-bottom: none;
+}
+
+.tachi-search-item:hover,
+.tachi-search-item.highlighted {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.tachi-search-selected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 14px;
+    color: #1d4ed8;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.tachi-search-selected .clear-btn {
+    margin-left: auto;
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.tachi-search-selected .clear-btn:hover {
+    color: #ef4444;
 }
