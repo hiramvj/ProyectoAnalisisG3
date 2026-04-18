@@ -29,8 +29,19 @@
                                 <span asp-validation-for="ProveedorId" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="NumeroFactura" class="form-label fw-bold">Número de Factura</label>
-                                <input asp-for="NumeroFactura" class="form-control" placeholder="Ej. FAC-10020" required />
+                                <div class="col-md-6">
+                                    <label asp-for="FacturaId" class="form-label fw-bold">Factura</label>
+                                    <select asp-for="FacturaId" class="form-select" required>
+                                        <option value="">Seleccione una factura</option>
+                                        @foreach (var f in ViewBag.Facturas)
+                                        {
+                                            <option value="@f.FacturaId">
+                                                @f.NumeroFactura - ₡@f.Total
+                                            </option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="FacturaId" class="text-danger small"></span>
+                                </div>
                                 <span asp-validation-for="NumeroFactura" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">

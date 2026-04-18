@@ -30,7 +30,13 @@ namespace ProyectoTachi.Controllers
         public async Task<IActionResult> CrearFactura()
         {
             await CargarProveedoresAsync();
-            return View(new CuentaPorPagarDto { FechaEmision = DateTime.Today, FechaVencimiento = DateTime.Today.AddDays(30) });
+            await CargarFacturasAsync();
+
+            return View(new CuentaPorPagarDto
+            {
+                FechaEmision = DateTime.Today,
+                FechaVencimiento = DateTime.Today.AddDays(30)
+            });
         }
 
         [HttpPost]
@@ -143,6 +149,11 @@ namespace ProyectoTachi.Controllers
             }
 
             return RedirectToAction(nameof(Detalle), new { id = idCuenta });
+        }
+        private async Task CargarFacturasAsync()
+        {
+            var facturas = await _cuentasFlujo.ListarFacturasAsync();
+            ViewBag.Facturas = facturas;
         }
     }
 }

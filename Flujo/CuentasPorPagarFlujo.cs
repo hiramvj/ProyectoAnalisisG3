@@ -51,10 +51,11 @@ namespace Flujo
             if (cuenta == null)
                 throw new ArgumentException("La cuenta por pagar no existe.");
 
+            if (cuenta.SaldoPendiente <= 0)
+                throw new ArgumentException("Esta cuenta ya está pagada.");
+
             if (dto.Estado == "COMPLETADO" && dto.Monto > cuenta.SaldoPendiente)
-            {
-                throw new ArgumentException($"El monto no puede ser superior al saldo pendiente (₡{cuenta.SaldoPendiente:N2}).");
-            }
+                throw new ArgumentException($"El monto no puede ser mayor al saldo pendiente (₡{cuenta.SaldoPendiente:N2}).");
 
             return await _da.RegistrarPagoAsync(dto);
         }
@@ -62,6 +63,10 @@ namespace Flujo
         public async Task CompletarPagoProgramadoAsync(int pagoProveedorId)
         {
             await _da.ActualizarEstadoPagoAsync(pagoProveedorId, "COMPLETADO");
+        }
+        public async Task<IEnumerable<FacturaDto>> ListarFacturasAsync()
+        {
+            return await _da.ListarFacturasAsync();
         }
     }
 }

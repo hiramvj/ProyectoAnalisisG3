@@ -2,88 +2,147 @@
 @{
     ViewData["Title"] = "Registrar Pago";
     var cuenta = ViewData["Cuenta"] as Abstracciones.Modelos.CuentaPorPagarDto;
+
+    // 🔥 VARIABLE PRO (para no repetir lógica)
+    var deshabilitado = cuenta?.SaldoPendiente <= 0;
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white py-3">
-                <h4 class="mb-0 text-success"><i class="fas fa-money-bill-wave me-2"></i>Registrar Pago a Proveedor</h4>
+                <h4 class="mb-0 text-success">
+                    <i class="fas fa-money-bill-wave me-2"></i>Registrar Pago a Proveedor
+                </h4>
             </div>
+
             <div class="card-body p-4">
-                
+
                 @if (cuenta != null)
                 {
                     <div class="alert alert-light border shadow-sm d-flex justify-content-between mb-4">
                         <div>
-                            <strong>Factura:</strong> @cuenta.NumeroFactura <br/>
+                            <strong>Factura:</strong> @cuenta.NumeroFactura <br />
                             <strong>Proveedor:</strong> @cuenta.ProveedorNombre
                         </div>
                         <div class="text-end">
-                            <span class="text-muted">Saldo Pendiente</span><br/>
-                            <span class="fs-4 fw-bold text-primary">₡@cuenta.SaldoPendiente.ToString("N2")</span>
+                            <span class="text-muted">Saldo Pendiente</span><br />
+                            <span class="fs-4 fw-bold text-primary">
+                                ₡@cuenta.SaldoPendiente.ToString("N2")
+                            </span>
                         </div>
+                    </div>
+                }
+
+                <!-- 🔥 ALERTA -->
+                @if (deshabilitado)
+                {
+                    <div class="alert alert-warning">
+                        Esta cuenta ya está pagada. No se pueden registrar más pagos.
                     </div>
                 }
 
                 <form asp-action="RegistrarPago" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                     <input type="hidden" asp-for="CuentaPorPagarId" />
 
                     <div class="row g-3">
+
+                        <!-- FECHA -->
                         <div class="col-md-6">
                             <label asp-for="FechaPago" class="form-label fw-bold">Fecha de Pago</label>
-                            <input asp-for="FechaPago" class="form-control" type="date" required />
-                            <div class="form-text">Para pagos futuros, cambia el Estado a PROGRAMADO.</div>
-                            <span asp-validation-for="FechaPago" class="text-danger small"></span>
+                            <input asp-for="FechaPago"
+                                   class="form-control"
+                                   type="date"
+                                   required
+                                   disabled="@(deshabilitado)" />
                         </div>
+
+                        <!-- MONTO -->
                         <div class="col-md-6">
                             <label asp-for="Monto" class="form-label fw-bold">Monto a Pagar</label>
                             <div class="input-group">
                                 <span class="input-group-text">₡</span>
-                                <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01" max="@(cuenta?.SaldoPendiente)" required />
+                                <input asp-for="Monto"
+                                       class="form-control"
+                                       type="number"
+                                       step="0.01"
+                                       min="0.01"
+                                       max="@(cuenta?.SaldoPendiente)"
+                                       value="@(cuenta?.SaldoPendiente)"
+                                       required
+                                       disabled="@(deshabilitado)" />
                             </div>
-                            <span asp-validation-for="Monto" class="text-danger small"></span>
                         </div>
+
+                        <!-- METODO -->
                         <div class="col-md-6">
                             <label asp-for="MetodoPago" class="form-label fw-bold">Método de Pago</label>
-                            <select asp-for="MetodoPago" class="form-select">
-                                <option value="Transferencia">Transferencia Bancaria</option>
+                            <select asp-for="MetodoPago"
+                                    class="form-select"
+                                    disabled="@(deshabilitado)">
+                                <option value="Transferencia">Transferencia</option>
                                 <option value="Efectivo">Efectivo</option>
                                 <option value="Cheque">Cheque</option>
-                                <option value="Tarjeta">Tarjeta de Crédito</option>
+                                <option value="Tarjeta">Tarjeta</option>
                             </select>
                         </div>
+
+                        <!-- TIPO -->
                         <div class="col-md-6">
                             <label asp-for="TipoTransaccion" class="form-label fw-bold">Tipo</label>
-                            <select asp-for="TipoTransaccion" class="form-select">
-                                <option value="PAGO">Pago Estándar</option>
-                                <option value="ANTICIPO">Aplicar Anticipo</option>
+                            <select asp-for="TipoTransaccion"
+                                    class="form-select"
+                                    disabled="@(deshabilitado)">
+                                <option value="PAGO">Pago</option>
+                                <option value="ANTICIPO">Anticipo</option>
                             </select>
                         </div>
+
+                        <!-- ESTADO -->
                         <div class="col-md-6">
-                            <label asp-for="Estado" class="form-label fw-bold">Estado de la Transacción</label>
-                            <select asp-for="Estado" class="form-select">
-                                <option value="COMPLETADO">Completado (Liquida saldo hoy)</option>
-                                <option value="PROGRAMADO">Programado (Día futuro)</option>
+                            <label asp-for="Estado" class="form-label fw-bold">Estado</label>
+                            <select asp-for="Estado"
+                                    class="form-select"
+                                    disabled="@(deshabilitado)">
+                                <option value="COMPLETADO">Completado</option>
+                                <option value="PROGRAMADO">Programado</option>
                             </select>
                         </div>
+
+                        <!-- NOTAS -->
                         <div class="col-12">
-                            <label asp-for="Notas" class="form-label fw-bold">Notas o Referencia</label>
-                            <input asp-for="Notas" class="form-control" placeholder="Ej. Comprobante #98273" />
+                            <label asp-for="Notas" class="form-label fw-bold">Notas</label>
+                            <input asp-for="Notas"
+                                   class="form-control"
+                                   disabled="@(deshabilitado)" />
                         </div>
+
                     </div>
 
                     <div class="mt-4 text-end">
-                        <a asp-action="Detalle" asp-route-id="@Model.CuentaPorPagarId" class="btn btn-light me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i> Confirmar</button>
+                        <a asp-action="Detalle"
+                           asp-route-id="@Model.CuentaPorPagarId"
+                           class="btn btn-light me-2">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-success"
+                                disabled="@(deshabilitado)">
+                            Confirmar
+                        </button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

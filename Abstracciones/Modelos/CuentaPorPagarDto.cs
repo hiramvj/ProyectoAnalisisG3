@@ -5,10 +5,11 @@ namespace Abstracciones.Modelos
     public class CuentaPorPagarDto
     {
         public int CuentaPorPagarId { get; set; }
+        public int FacturaId { get; set; }
         public int ProveedorId { get; set; }
         public string ProveedorNombre { get; set; } = string.Empty;
-        
-        [Required(ErrorMessage = "El número de factura es obligatorio")]
+
+
         public string NumeroFactura { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La fecha de emisión es obligatoria")]
@@ -29,7 +30,7 @@ namespace Abstracciones.Modelos
     {
         public int PagoProveedorId { get; set; }
         public int CuentaPorPagarId { get; set; }
-        
+
         [Required(ErrorMessage = "La fecha de pago es obligatoria")]
         public DateTime FechaPago { get; set; }
 

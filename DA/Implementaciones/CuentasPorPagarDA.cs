@@ -1,4 +1,4 @@
-using Abstracciones.Interfaces.DA;
+﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using DA.Contexto;
 using DA.Entidades;
@@ -22,7 +22,7 @@ namespace DA.Implementaciones
         public async Task<IEnumerable<CuentaPorPagarDto>> ListarCuentasAsync()
         {
             var cuentasDto = new List<CuentaPorPagarDto>();
-            
+
             var query = from c in _db.CuentasPorPagar
                         join p in _db.Proveedores on c.ProveedorId equals p.ProveedorId
                         orderby c.FechaVencimiento ascending
@@ -74,14 +74,24 @@ namespace DA.Implementaciones
 
         public async Task<int> CrearCuentaAsync(CuentaPorPagarDto dto)
         {
+            var factura = await _db.Facturas
+                .FirstOrDefaultAsync(f => f.FacturaId == dto.FacturaId);
+
+            if (factura == null)
+                throw new Exception("La factura seleccionada no existe.");
+
             var nuevaCuenta = new CuentaPorPagar
             {
                 ProveedorId = dto.ProveedorId,
-                NumeroFactura = dto.NumeroFactura,
-                FechaEmision = dto.FechaEmision,
-                FechaVencimiento = dto.FechaVencimiento,
-                MontoOriginal = dto.MontoOriginal,
-                SaldoPendiente = dto.MontoOriginal,
+
+                NumeroFactura = factura.NumeroFactura.ToString(),
+
+                FechaEmision = DateTime.SpecifyKind(factura.FechaEmision, DateTimeKind.Utc),
+                FechaVencimiento = DateTime.SpecifyKind(dto.FechaVencimiento, DateTimeKind.Utc),
+
+                MontoOriginal = factura.Total,
+                SaldoPendiente = factura.Total,
+
                 Estado = "PENDIENTE"
             };
 
@@ -118,10 +128,20 @@ namespace DA.Implementaciones
                 if (cuenta == null)
                     throw new Exception("La cuenta por pagar no existe.");
 
+                // 🔥 VALIDACIONES PRO
+                if (cuenta.SaldoPendiente <= 0)
+                    throw new Exception("Esta cuenta ya está pagada.");
+
+                if (dto.Monto <= 0)
+                    throw new Exception("El monto debe ser mayor a 0.");
+
+                if (dto.Estado == "COMPLETADO" && dto.Monto > cuenta.SaldoPendiente)
+                    throw new Exception($"El monto no puede ser mayor al saldo pendiente (₡{cuenta.SaldoPendiente:N2}).");
+
                 var nuevoPago = new PagoProveedor
                 {
                     CuentaPorPagarId = dto.CuentaPorPagarId,
-                    FechaPago = dto.FechaPago,
+                    FechaPago = DateTime.SpecifyKind(dto.FechaPago, DateTimeKind.Utc), // 🔥 FIX UTC
                     Monto = dto.Monto,
                     MetodoPago = dto.MetodoPago,
                     TipoTransaccion = dto.TipoTransaccion,
@@ -131,20 +151,21 @@ namespace DA.Implementaciones
 
                 await _db.PagosProveedor.AddAsync(nuevoPago);
 
-                // Solo descontamos si es un anticipo completado o un pago completado
+                // 🔥 SOLO SI ES COMPLETADO AFECTA SALDO
                 if (nuevoPago.Estado == "COMPLETADO")
                 {
                     cuenta.SaldoPendiente -= nuevoPago.Monto;
 
                     if (cuenta.SaldoPendiente <= 0)
                     {
-                        cuenta.SaldoPendiente = 0; // Evitar negativos
+                        cuenta.SaldoPendiente = 0;
                         cuenta.Estado = "PAGADA";
                     }
                     else
                     {
                         cuenta.Estado = "PENDIENTE";
                     }
+
                     _db.CuentasPorPagar.Update(cuenta);
                 }
 
@@ -195,6 +216,22 @@ namespace DA.Implementaciones
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+        public async Task<IEnumerable<FacturaDto>> ListarFacturasAsync()
+        {
+            return await _db.Facturas
+                .Select(f => new FacturaDto
+                {
+                    FacturaId = f.FacturaId,
+                    NumeroFactura = f.NumeroFactura,
+                    PedidoVentaId = f.PedidoVentaId,
+                    FechaEmision = f.FechaEmision,
+                    Subtotal = f.Subtotal,
+                    Impuesto = f.Impuesto,
+                    Total = f.Total,
+                    Estado = f.Estado
+                })
+                .ToListAsync();
         }
     }
 }

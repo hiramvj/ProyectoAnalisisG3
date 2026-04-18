@@ -11,5 +11,6 @@ namespace Abstracciones.Interfaces.DA
         Task<IEnumerable<PagoProveedorDto>> ListarPagosPorCuentaAsync(int cuentaPorPagarId);
         Task<int> RegistrarPagoAsync(PagoProveedorDto dto);
         Task ActualizarEstadoPagoAsync(int pagoProveedorId, string nuevoEstado);
+        Task<IEnumerable<FacturaDto>> ListarFacturasAsync();
     }
 }
