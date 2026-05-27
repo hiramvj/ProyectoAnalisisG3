@@ -24,10 +24,25 @@
         <small class="text-muted">Administra tu inventario y filtra rápidamente.</small>
     </div>
 
-    <a asp-action="Create" class="btn btn-success">
-        + Agregar Producto
-    </a>
+    <div>
+        <a asp-action="Create" class="btn btn-success">
+            + Agregar Producto
+        </a>
+    </div>
 </div>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a asp-action="Index" class="nav-link active">
+            Activos
+        </a>
+    </li>
+    <li class="nav-item">
+        <a asp-action="Inactivos" class="nav-link">
+            Inactivos
+        </a>
+    </li>
+</ul>
 
 <div class="card shadow-sm mb-3">
     <div class="card-body">
@@ -106,52 +121,63 @@
             </thead>
 
             <tbody>
-                @foreach (var item in Model)
+                @if (Model == null || !Model.Any())
                 {
-                    var bajoStock = item.Stock <= item.StockMinimo;
-
                     <tr>
-                        <td>@item.SKU</td>
-                        <td>@item.Nombre</td>
-
-                        <td class="@(bajoStock ? "text-danger fw-bold" : "")">
-                            @item.Stock
-                        </td>
-
-                        <td>₡ @item.Precio.ToString("N2")</td>
-
-                        <td>
-                            @if (bajoStock)
-                            {
-                                <span class="badge bg-warning text-dark">Bajo Stock</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Disponible</span>
-                            }
-                        </td>
-
-                        <td>
-                            <a asp-action="Edit"
-                               asp-route-id="@item.ProductoId"
-                               class="btn btn-sm btn-warning">
-                                Editar
-                            </a>
-
-                            <form asp-action="Desactivar"
-                                  method="post"
-                                  style="display:inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@item.ProductoId" />
-
-                                <button type="submit"
-                                        class="btn btn-sm btn-danger"
-                                        onclick="return confirm('¿Desea desactivar este producto?')">
-                                    Desactivar
-                                </button>
-                            </form>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No hay productos activos.
                         </td>
                     </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        var bajoStock = item.Stock <= item.StockMinimo;
+
+                        <tr>
+                            <td>@item.SKU</td>
+                            <td>@item.Nombre</td>
+
+                            <td class="@(bajoStock ? "text-danger fw-bold" : "")">
+                                @item.Stock
+                            </td>
+
+                            <td>₡ @item.Precio.ToString("N2")</td>
+
+                            <td>
+                                @if (bajoStock)
+                                {
+                                    <span class="badge bg-warning text-dark">Bajo Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Disponible</span>
+                                }
+                            </td>
+
+                            <td>
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.ProductoId"
+                                   class="btn btn-sm btn-warning">
+                                    Editar
+                                </a>
+
+                                <form asp-action="Desactivar"
+                                      method="post"
+                                      style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.ProductoId" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger"
+                                            onclick="return confirm('¿Desea desactivar este producto?')">
+                                        Desactivar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
