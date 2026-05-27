@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Clientes";
 }
+
 @if (TempData["MensajeError"] != null)
 {
     <div class="alert alert-danger">
@@ -34,7 +35,10 @@
         <form method="get" class="row g-2 align-items-end">
             <div class="col-md-6">
                 <label class="form-label">Buscar</label>
-                <input type="text" name="q" value="@(ViewBag.Q ?? "")" class="form-control"
+                <input type="text"
+                       name="q"
+                       value="@(ViewBag.Q ?? "")"
+                       class="form-control"
                        placeholder="Cédula, nombre o correo..." />
             </div>
 
@@ -60,6 +64,7 @@
                     <th style="width:220px;">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach (var item in Model)
                 {
@@ -67,14 +72,31 @@
                         <td>@item.Identificacion</td>
                         <td>@item.NombreCompleto</td>
                         <td>@item.Correo</td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.ClienteId" class="btn btn-sm btn-info">Ver</a>
-                            <a asp-action="Edit" asp-route-id="@item.ClienteId" class="btn btn-sm btn-warning">Editar</a>
 
-                            <form asp-action="Desactivar" method="post" style="display:inline">
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@item.ClienteId"
+                               class="btn btn-sm btn-info">
+                                Ver
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.ClienteId"
+                               class="btn btn-sm btn-warning">
+                                Editar
+                            </a>
+
+                            <form asp-action="Desactivar"
+                                  method="post"
+                                  style="display:inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@item.ClienteId" />
-                                <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('¿Desea desactivar este cliente?')">
+                                    Desactivar
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -83,3 +105,42 @@
         </table>
     </div>
 </div>
+
+@if ((ViewBag.TotalPaginas ?? 0) > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(ViewBag.PaginaActual <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(ViewBag.PaginaActual - 1)"
+                   asp-route-q="@ViewBag.Q">
+                    Anterior
+                </a>
+            </li>
+
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-q="@ViewBag.Q">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(ViewBag.PaginaActual + 1)"
+                   asp-route-q="@ViewBag.Q">
+                    Siguiente
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}

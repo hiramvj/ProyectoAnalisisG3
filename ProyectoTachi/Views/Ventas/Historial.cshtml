@@ -1,4 +1,5 @@
 @model List<Abstracciones.Modelos.PedidoVentaListadoDto>
+
 @{
     ViewData["Title"] = "Historial de Ventas";
 }
@@ -58,12 +59,18 @@
                         var clienteSelNombre = clientes.FirstOrDefault(c => c.ClienteId == clienteSelId)?.NombreCompleto ?? "";
                     }
                     <div class="tachi-search-wrap" data-items='@Html.Raw(clientesJsonH)'>
-                        <input type="text" class="form-control tachi-search-input"
+                        <input type="text"
+                               class="form-control tachi-search-input"
                                placeholder="Buscar cliente..."
                                value="@clienteSelNombre"
                                autocomplete="off">
+
                         <div class="tachi-search-dropdown"></div>
-                        <input type="hidden" name="clienteId" class="tachi-search-hidden" value="@(clienteSelId?.ToString() ?? "")">
+
+                        <input type="hidden"
+                               name="clienteId"
+                               class="tachi-search-hidden"
+                               value="@(clienteSelId?.ToString() ?? "")">
                     </div>
                 </div>
 
@@ -164,7 +171,6 @@
                                    title="Ajuste Contable">
                                     <i class="bi bi-file-earmark-diff"></i>
                                 </a>
-
                             </td>
                         </tr>
                     }
@@ -181,3 +187,57 @@
         </table>
     </div>
 </div>
+
+@if ((ViewBag.TotalPaginas ?? 0) > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(ViewBag.PaginaActual <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Historial"
+                   asp-route-page="@(ViewBag.PaginaActual - 1)"
+                   asp-route-q="@ViewBag.Q"
+                   asp-route-desde="@ViewBag.Desde"
+                   asp-route-hasta="@ViewBag.Hasta"
+                   asp-route-clienteId="@ViewBag.ClienteId"
+                   asp-route-estado="@ViewBag.Estado"
+                   asp-route-metodoPagoId="@ViewBag.MetodoPagoId">
+                    Anterior
+                </a>
+            </li>
+
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Historial"
+                       asp-route-page="@i"
+                       asp-route-q="@ViewBag.Q"
+                       asp-route-desde="@ViewBag.Desde"
+                       asp-route-hasta="@ViewBag.Hasta"
+                       asp-route-clienteId="@ViewBag.ClienteId"
+                       asp-route-estado="@ViewBag.Estado"
+                       asp-route-metodoPagoId="@ViewBag.MetodoPagoId">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Historial"
+                   asp-route-page="@(ViewBag.PaginaActual + 1)"
+                   asp-route-q="@ViewBag.Q"
+                   asp-route-desde="@ViewBag.Desde"
+                   asp-route-hasta="@ViewBag.Hasta"
+                   asp-route-clienteId="@ViewBag.ClienteId"
+                   asp-route-estado="@ViewBag.Estado"
+                   asp-route-metodoPagoId="@ViewBag.MetodoPagoId">
+                    Siguiente
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}

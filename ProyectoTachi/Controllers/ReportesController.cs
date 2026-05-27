@@ -26,14 +26,42 @@ namespace ProyectoTachi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(ReporteVentasFiltroDto filtro)
+        public async Task<IActionResult> Index(ReporteVentasFiltroDto filtro, int page = 1)
         {
+            int pageSize = 10;
+
             await CargarCombos(filtro);
 
             var lista = await _reporteFlujo.ObtenerReporteVentasAsync(filtro);
 
+            lista = lista
+                .OrderByDescending(x => x.FechaPedido)
+                .ThenByDescending(x => x.NumeroPedido)
+                .ToList();
+
+            var totalRegistros = lista.Count();
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (totalPaginas > 0 && page > totalPaginas)
+            {
+                page = totalPaginas;
+            }
+
+            var listaPaginada = lista
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
             ViewBag.Filtro = filtro;
-            return View(lista);
+            ViewBag.PaginaActual = page;
+            ViewBag.TotalPaginas = totalPaginas;
+
+            return View(listaPaginada);
         }
 
         [HttpGet]

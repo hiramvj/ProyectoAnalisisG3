@@ -16,10 +16,13 @@ namespace ProyectoTachi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? q)
+        [HttpGet]
+        public async Task<IActionResult> Index(string? q, int page = 1)
         {
             try
             {
+                int pageSize = 10;
+
                 var lista = await _flujo.ObtenerTodosAsync(true);
 
                 if (!string.IsNullOrWhiteSpace(q))
@@ -35,10 +38,34 @@ namespace ProyectoTachi.Controllers
                         .ToList();
                 }
 
-                ViewBag.TotalClientesActivos = lista?.Count ?? 0;
-                ViewBag.Q = q;
+                lista = lista
+                    .OrderByDescending(c => c.ClienteId)
+                    .ToList();
 
-                return View(lista);
+                var totalRegistros = lista.Count;
+                var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+                if (page < 1)
+                {
+                    page = 1;
+                }
+
+                if (totalPaginas > 0 && page > totalPaginas)
+                {
+                    page = totalPaginas;
+                }
+
+                var listaPaginada = lista
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                ViewBag.TotalClientesActivos = totalRegistros;
+                ViewBag.Q = q;
+                ViewBag.PaginaActual = page;
+                ViewBag.TotalPaginas = totalPaginas;
+
+                return View(listaPaginada);
             }
             catch (Exception ex)
             {

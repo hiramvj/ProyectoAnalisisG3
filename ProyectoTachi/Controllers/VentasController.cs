@@ -25,19 +25,56 @@ namespace ProyectoTachi.Controllers
             _db = db;
         }
         [HttpGet]
-        public async Task<IActionResult> Historial(string? q, DateTime? desde, DateTime? hasta, int? clienteId, string? estado, int? metodoPagoId)
+        public async Task<IActionResult> Historial(
+    string? q,
+    DateTime? desde,
+    DateTime? hasta,
+    int? clienteId,
+    string? estado,
+    int? metodoPagoId,
+    int page = 1)
         {
+            int pageSize = 10;
+
             await CargarClientesAsync(clienteId);
             await CargarMetodosPagoAsync(metodoPagoId);
 
             ViewBag.Q = q;
             ViewBag.Desde = desde?.ToString("yyyy-MM-dd");
             ViewBag.Hasta = hasta?.ToString("yyyy-MM-dd");
+            ViewBag.ClienteId = clienteId;
             ViewBag.Estado = estado;
             ViewBag.MetodoPagoId = metodoPagoId;
 
             var lista = await _pedidoFlujo.ListarAsync(q, desde, hasta, clienteId, estado, metodoPagoId);
-            return View(lista); // ✅ va a Views/Ventas/Historial.cshtml
+
+            lista = lista
+                .OrderByDescending(x => x.FechaPedido)
+                .ThenByDescending(x => x.PedidoVentaId)
+                .ToList();
+
+            var totalRegistros = lista.Count;
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (totalPaginas > 0 && page > totalPaginas)
+            {
+                page = totalPaginas;
+            }
+
+            var listaPaginada = lista
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.PaginaActual = page;
+            ViewBag.TotalPaginas = totalPaginas;
+
+            return View(listaPaginada);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]

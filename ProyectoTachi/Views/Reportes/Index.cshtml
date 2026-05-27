@@ -5,16 +5,15 @@
     var filtro = ViewBag.Filtro as Abstracciones.Modelos.ReporteVentasFiltroDto
                  ?? new Abstracciones.Modelos.ReporteVentasFiltroDto();
 
-    var clientes  = ViewBag.Clientes  as List<Abstracciones.Modelos.ClienteDto>  ?? new();
+    var clientes = ViewBag.Clientes as List<Abstracciones.Modelos.ClienteDto> ?? new();
     var productos = ViewBag.Productos as List<Abstracciones.Modelos.ProductoDto> ?? new();
 
-    var clientesJson  = System.Text.Json.JsonSerializer.Serialize(
+    var clientesJson = System.Text.Json.JsonSerializer.Serialize(
         clientes.Select(c => new { id = c.ClienteId, nombre = c.NombreCompleto }));
     var productosJson = System.Text.Json.JsonSerializer.Serialize(
         productos.Select(p => new { id = p.ProductoId, nombre = p.Nombre }));
 
-    // Find current filter names to pre-fill inputs
-    var clienteActual  = clientes.FirstOrDefault(c => c.ClienteId  == filtro.ClienteId);
+    var clienteActual = clientes.FirstOrDefault(c => c.ClienteId == filtro.ClienteId);
     var productoActual = productos.FirstOrDefault(p => p.ProductoId == filtro.ProductoId);
 }
 
@@ -43,35 +42,53 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
                     <label class="form-label">Desde</label>
-                    <input type="date" class="form-control" name="Desde" value="@(filtro.Desde?.ToString("yyyy-MM-dd"))" />
+                    <input type="date"
+                           class="form-control"
+                           name="Desde"
+                           value="@(filtro.Desde?.ToString("yyyy-MM-dd"))" />
                 </div>
 
                 <div class="col-md-2">
                     <label class="form-label">Hasta</label>
-                    <input type="date" class="form-control" name="Hasta" value="@(filtro.Hasta?.ToString("yyyy-MM-dd"))" />
+                    <input type="date"
+                           class="form-control"
+                           name="Hasta"
+                           value="@(filtro.Hasta?.ToString("yyyy-MM-dd"))" />
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Cliente <small class="text-muted">(opcional)</small></label>
                     <div class="tachi-search-wrap" data-items='@Html.Raw(clientesJson)'>
-                        <input type="text" class="form-control tachi-search-input"
+                        <input type="text"
+                               class="form-control tachi-search-input"
                                placeholder="Buscar cliente..."
                                value="@(clienteActual?.NombreCompleto ?? "")"
                                autocomplete="off">
+
                         <div class="tachi-search-dropdown"></div>
-                        <input type="hidden" name="ClienteId" class="tachi-search-hidden" value="@filtro.ClienteId">
+
+                        <input type="hidden"
+                               name="ClienteId"
+                               class="tachi-search-hidden"
+                               value="@filtro.ClienteId">
                     </div>
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Producto <small class="text-muted">(opcional)</small></label>
                     <div class="tachi-search-wrap" data-items='@Html.Raw(productosJson)'>
-                        <input type="text" class="form-control tachi-search-input"
+                        <input type="text"
+                               class="form-control tachi-search-input"
                                placeholder="Buscar producto..."
                                value="@(productoActual?.Nombre ?? "")"
                                autocomplete="off">
+
                         <div class="tachi-search-dropdown"></div>
-                        <input type="hidden" name="ProductoId" class="tachi-search-hidden" value="@filtro.ProductoId">
+
+                        <input type="hidden"
+                               name="ProductoId"
+                               class="tachi-search-hidden"
+                               value="@filtro.ProductoId">
                     </div>
                 </div>
 
@@ -79,9 +96,9 @@
                     <label class="form-label">Estado</label>
                     <select class="form-select" name="Estado">
                         <option value="">-- Todos --</option>
-                        <option value="CREADA"     selected="@(filtro.Estado == "CREADA")">CREADA</option>
-                        <option value="ENTREGADA"  selected="@(filtro.Estado == "ENTREGADA")">ENTREGADA</option>
-                        <option value="CANCELADA"  selected="@(filtro.Estado == "CANCELADA")">CANCELADA</option>
+                        <option value="CREADA" selected="@(filtro.Estado == "CREADA")">CREADA</option>
+                        <option value="ENTREGADA" selected="@(filtro.Estado == "ENTREGADA")">ENTREGADA</option>
+                        <option value="CANCELADA" selected="@(filtro.Estado == "CANCELADA")">CANCELADA</option>
                     </select>
                 </div>
 
@@ -112,6 +129,7 @@
                     <th>Estado</th>
                 </tr>
             </thead>
+
             <tbody>
                 @if (Model == null || !Model.Any())
                 {
@@ -158,3 +176,54 @@
         </table>
     </div>
 </div>
+
+@if ((ViewBag.TotalPaginas ?? 0) > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(ViewBag.PaginaActual <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(ViewBag.PaginaActual - 1)"
+                   asp-route-Desde="@(filtro.Desde?.ToString("yyyy-MM-dd"))"
+                   asp-route-Hasta="@(filtro.Hasta?.ToString("yyyy-MM-dd"))"
+                   asp-route-ClienteId="@filtro.ClienteId"
+                   asp-route-ProductoId="@filtro.ProductoId"
+                   asp-route-Estado="@filtro.Estado">
+                    Anterior
+                </a>
+            </li>
+
+            @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-Desde="@(filtro.Desde?.ToString("yyyy-MM-dd"))"
+                       asp-route-Hasta="@(filtro.Hasta?.ToString("yyyy-MM-dd"))"
+                       asp-route-ClienteId="@filtro.ClienteId"
+                       asp-route-ProductoId="@filtro.ProductoId"
+                       asp-route-Estado="@filtro.Estado">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(ViewBag.PaginaActual + 1)"
+                   asp-route-Desde="@(filtro.Desde?.ToString("yyyy-MM-dd"))"
+                   asp-route-Hasta="@(filtro.Hasta?.ToString("yyyy-MM-dd"))"
+                   asp-route-ClienteId="@filtro.ClienteId"
+                   asp-route-ProductoId="@filtro.ProductoId"
+                   asp-route-Estado="@filtro.Estado">
+                    Siguiente
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}
