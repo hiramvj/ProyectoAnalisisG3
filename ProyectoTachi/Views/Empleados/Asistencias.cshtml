@@ -1,4 +1,4 @@
-﻿@model List<Abstracciones.Modelos.AsistenciaDto>
+@model List<Abstracciones.Modelos.AsistenciaDto>
 @using Abstracciones.Modelos
 
 @{
@@ -45,21 +45,23 @@
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Tipo</label>
                     <select name="Tipo" class="form-select" required>
-                        <option value="ASISTENCIA">ASISTENCIA</option>
-                        <option value="AUSENCIA">AUSENCIA</option>
-                        <option value="VACACIONES">VACACIONES</option>
-                        <option value="PERMISO">PERMISO</option>
+                        <option value="ASISTENCIA" selected="@(nueva?.Tipo == "ASISTENCIA")">ASISTENCIA</option>
+                        <option value="AUSENCIA" selected="@(nueva?.Tipo == "AUSENCIA")">AUSENCIA</option>
+                        <option value="VACACIONES" selected="@(nueva?.Tipo == "VACACIONES")">VACACIONES</option>
+                        <option value="PERMISO" selected="@(nueva?.Tipo == "PERMISO")">PERMISO</option>
                     </select>
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Hora entrada</label>
-                    <input type="time" name="HoraEntrada" class="form-control" />
+                    <input type="time" name="HoraEntrada" class="form-control" value="@nueva?.HoraEntrada?.ToString(@"hh\:mm")" />
+                    <span class="text-danger small">@Html.ValidationMessage("HoraEntrada")</span>
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Hora salida</label>
-                    <input type="time" name="HoraSalida" class="form-control" />
+                    <input type="time" name="HoraSalida" class="form-control" value="@nueva?.HoraSalida?.ToString(@"hh\:mm")" />
+                    <span class="text-danger small">@Html.ValidationMessage("HoraSalida")</span>
                 </div>
             </div>
 
@@ -94,8 +96,8 @@
                 <tr>
                     <td>@item.Fecha.ToString("yyyy-MM-dd")</td>
                     <td>@item.Tipo</td>
-                    <td>@item.HoraEntrada</td>
-                    <td>@item.HoraSalida</td>
+                    <td>@(item.HoraEntrada?.ToString(@"hh\:mm") ?? "-")</td>
+                    <td>@(item.HoraSalida?.ToString(@"hh\:mm") ?? "-")</td>
                 </tr>
             }
         }

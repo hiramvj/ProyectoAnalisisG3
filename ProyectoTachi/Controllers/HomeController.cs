@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using ProyectoTachi.Models;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
@@ -51,9 +52,10 @@ namespace ProyectoTachi.Controllers
             return View(model);
         }
 
+        [Authorize]
         public async Task<IActionResult> InformeFinanciero()
         {
-            // Usamos _productoFlujo que ya est· inyectado en tu controlador
+            // Usamos _productoFlujo que ya est√° inyectado en tu controlador
             var productos = await _productoFlujo.ObtenerTodosAsync(true);
 
             var model = new InformeFinancieroViewModel();
