@@ -82,6 +82,29 @@ namespace ProyectoTachi.Controllers
         {
             try
             {
+                if (!dto.MetodoPagoId.HasValue || dto.MetodoPagoId.Value <= 0)
+                {
+                    ModelState.AddModelError(nameof(dto.MetodoPagoId), "Seleccione un método de pago.");
+                }
+
+                dto.Lineas = dto.Lineas?
+                    .Where(l => l.ProductoId > 0 && l.Cantidad > 0)
+                    .ToList()
+                    ?? new List<PedidoVentaLineaDto>();
+
+                if (dto.Lineas.Count == 0)
+                {
+                    ModelState.AddModelError(nameof(dto.Lineas), "Agregue al menos un producto.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    await CargarClientesAsync(dto.ClienteId);
+                    await CargarProductosAsync();
+                    await CargarMetodosPagoAsync(dto.MetodoPagoId);
+                    return View("Index", dto);
+                }
+
                 var pedidoId = await _pedidoFlujo.CrearPedidoAsync(dto);
                 TempData["Ok"] = $"Pedido creado: {pedidoId}";
                 return RedirectToAction(nameof(Index));

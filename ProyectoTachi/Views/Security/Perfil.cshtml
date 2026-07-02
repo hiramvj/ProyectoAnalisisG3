@@ -1,0 +1,44 @@
+@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Mi Perfil</h2>
+        <small class="text-muted">Información de la cuenta autenticada.</small>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Usuario</label>
+                <input class="form-control" value="@Model.UserName" readonly />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Correo electrónico</label>
+                <input class="form-control" value="@Model.Email" readonly />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Teléfono</label>
+                <input class="form-control" value="@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "No registrado" : Model.PhoneNumber)" readonly />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Correo confirmado</label>
+                <input class="form-control" value="@(Model.EmailConfirmed ? "Sí" : "No")" readonly />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                Volver
+            </a>
+        </div>
+    </div>
+</div>

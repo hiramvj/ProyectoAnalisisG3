@@ -20,6 +20,7 @@
 <h2>Editar Cliente</h2>
 
 <form asp-action="Edit" method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
     @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="ClienteId" />
@@ -27,19 +28,19 @@
     <div class="row g-3">
         <div class="col-md-6">
             <label asp-for="NombreCompleto" class="form-label">Nombre Completo</label>
-            <input asp-for="NombreCompleto" class="form-control" />
+            <input asp-for="NombreCompleto" class="form-control" required />
             <span asp-validation-for="NombreCompleto" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="Identificacion" class="form-label">Identificación</label>
-            <input asp-for="Identificacion" class="form-control" />
+            <input asp-for="Identificacion" class="form-control" required />
             <span asp-validation-for="Identificacion" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
             <label asp-for="Correo" class="form-label">Correo</label>
-            <input asp-for="Correo" class="form-control" />
+            <input asp-for="Correo" type="email" class="form-control" required />
             <span asp-validation-for="Correo" class="text-danger"></span>
         </div>
 

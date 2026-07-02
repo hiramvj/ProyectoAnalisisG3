@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
@@ -16,7 +16,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="navbarDropdown">
                 <li>
-                    <a class="dropdown-item d-flex align-items-center gap-2" asp-area="Identity" asp-page="/Account/Manage/Index">
+                    <a class="dropdown-item d-flex align-items-center gap-2" asp-area="" asp-controller="Security" asp-action="Perfil">
                         <i class="fa-solid fa-gear text-muted"></i>
                         <span>Mi Perfil</span>
                     </a>

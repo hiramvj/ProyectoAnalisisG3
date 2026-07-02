@@ -44,7 +44,7 @@
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Tipo</label>
-                    <select name="Tipo" class="form-select" required>
+                    <select name="Tipo" class="form-select" id="tipoAsistencia" required>
                         <option value="ASISTENCIA" selected="@(nueva?.Tipo == "ASISTENCIA")">ASISTENCIA</option>
                         <option value="AUSENCIA" selected="@(nueva?.Tipo == "AUSENCIA")">AUSENCIA</option>
                         <option value="VACACIONES" selected="@(nueva?.Tipo == "VACACIONES")">VACACIONES</option>
@@ -54,13 +54,13 @@
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Hora entrada</label>
-                    <input type="time" name="HoraEntrada" class="form-control" value="@nueva?.HoraEntrada?.ToString(@"hh\:mm")" />
+                    <input type="time" name="HoraEntrada" id="horaEntrada" class="form-control" value="@nueva?.HoraEntrada?.ToString(@"hh\:mm")" />
                     <span class="text-danger small">@Html.ValidationMessage("HoraEntrada")</span>
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Hora salida</label>
-                    <input type="time" name="HoraSalida" class="form-control" value="@nueva?.HoraSalida?.ToString(@"hh\:mm")" />
+                    <input type="time" name="HoraSalida" id="horaSalida" class="form-control" value="@nueva?.HoraSalida?.ToString(@"hh\:mm")" />
                     <span class="text-danger small">@Html.ValidationMessage("HoraSalida")</span>
                 </div>
             </div>
@@ -103,3 +103,27 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        function actualizarHorasAsistencia() {
+            const tipo = document.getElementById('tipoAsistencia');
+            const horaEntrada = document.getElementById('horaEntrada');
+            const horaSalida = document.getElementById('horaSalida');
+            const esAsistencia = tipo.value === 'ASISTENCIA';
+
+            horaEntrada.required = esAsistencia;
+            horaSalida.required = esAsistencia;
+            horaEntrada.disabled = !esAsistencia;
+            horaSalida.disabled = !esAsistencia;
+
+            if (!esAsistencia) {
+                horaEntrada.value = '';
+                horaSalida.value = '';
+            }
+        }
+
+        document.getElementById('tipoAsistencia').addEventListener('change', actualizarHorasAsistencia);
+        actualizarHorasAsistencia();
+    </script>
+}

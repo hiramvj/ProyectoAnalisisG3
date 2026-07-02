@@ -69,7 +69,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MensajeError"] = $"OcurriÛ un error al cargar los clientes: {ex.Message}";
+                TempData["MensajeError"] = $"Ocurri√≥ un error al cargar los clientes: {ex.Message}";
                 return View(new List<ClienteDto>());
             }
         }
@@ -84,7 +84,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MensajeError"] = $"OcurriÛ un error al cargar los clientes inactivos: {ex.Message}";
+                TempData["MensajeError"] = $"Ocurri√≥ un error al cargar los clientes inactivos: {ex.Message}";
                 return View(new List<ClienteDto>());
             }
         }
@@ -101,8 +101,7 @@ namespace ProyectoTachi.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(dto.NombreCompleto))
-                    ModelState.AddModelError(nameof(dto.NombreCompleto), "El nombre completo es requerido.");
+                await ValidarClienteAsync(dto);
 
                 if (!ModelState.IsValid)
                     return View(dto);
@@ -119,7 +118,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"OcurriÛ un error al guardar el cliente: {ex.Message}");
+                ModelState.AddModelError("", $"Ocurri√≥ un error al guardar el cliente: {ex.Message}");
                 return View(dto);
             }
         }
@@ -136,7 +135,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MensajeError"] = $"OcurriÛ un error al cargar el cliente: {ex.Message}";
+                TempData["MensajeError"] = $"Ocurri√≥ un error al cargar el cliente: {ex.Message}";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -147,6 +146,8 @@ namespace ProyectoTachi.Controllers
         {
             try
             {
+                await ValidarClienteAsync(dto);
+
                 if (!ModelState.IsValid)
                     return View(dto);
 
@@ -168,7 +169,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"OcurriÛ un error al actualizar el cliente: {ex.Message}");
+                ModelState.AddModelError("", $"Ocurri√≥ un error al actualizar el cliente: {ex.Message}");
                 return View(dto);
             }
         }
@@ -207,6 +208,47 @@ namespace ProyectoTachi.Controllers
             return RedirectToAction(nameof(Inactivos));
         }
 
+
+        private async Task ValidarClienteAsync(ClienteDto dto)
+        {
+            dto.NombreCompleto = dto.NombreCompleto?.Trim() ?? string.Empty;
+            dto.Identificacion = dto.Identificacion?.Trim();
+            dto.Correo = dto.Correo?.Trim();
+            dto.Telefono = dto.Telefono?.Trim();
+            dto.Direccion = dto.Direccion?.Trim();
+
+            if (string.IsNullOrWhiteSpace(dto.NombreCompleto))
+                ModelState.AddModelError(nameof(dto.NombreCompleto), "El nombre completo es requerido.");
+
+            if (string.IsNullOrWhiteSpace(dto.Identificacion))
+                ModelState.AddModelError(nameof(dto.Identificacion), "La identificaci√≥n es requerida.");
+
+            if (string.IsNullOrWhiteSpace(dto.Correo))
+                ModelState.AddModelError(nameof(dto.Correo), "El correo es requerido.");
+
+            if (!ModelState.IsValid)
+                return;
+
+            var clientes = new List<ClienteDto>();
+            clientes.AddRange(await _flujo.ObtenerTodosAsync(true));
+            clientes.AddRange(await _flujo.ObtenerTodosAsync(false));
+
+            var duplicadoIdentificacion = clientes.Any(c =>
+                c.ClienteId != dto.ClienteId &&
+                !string.IsNullOrWhiteSpace(c.Identificacion) &&
+                string.Equals(c.Identificacion.Trim(), dto.Identificacion, StringComparison.OrdinalIgnoreCase));
+
+            if (duplicadoIdentificacion)
+                ModelState.AddModelError(nameof(dto.Identificacion), "Ya existe un cliente con esta identificaci√≥n.");
+
+            var duplicadoCorreo = clientes.Any(c =>
+                c.ClienteId != dto.ClienteId &&
+                !string.IsNullOrWhiteSpace(c.Correo) &&
+                string.Equals(c.Correo.Trim(), dto.Correo, StringComparison.OrdinalIgnoreCase));
+
+            if (duplicadoCorreo)
+                ModelState.AddModelError(nameof(dto.Correo), "Ya existe un cliente con este correo.");
+        }
         public async Task<IActionResult> Details(int id)
         {
             try
@@ -222,7 +264,7 @@ namespace ProyectoTachi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MensajeError"] = $"OcurriÛ un error al cargar el detalle del cliente: {ex.Message}";
+                TempData["MensajeError"] = $"Ocurri√≥ un error al cargar el detalle del cliente: {ex.Message}";
                 return RedirectToAction(nameof(Index));
             }
         }

@@ -35,10 +35,10 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.EmailIngresado</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.EmailIngresado) ? "No disponible" : item.EmailIngresado)</td>
                             <td>@item.FechaIntento.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
-                            <td>@item.IpAddress</td>
-                            <td>@item.UserAgent</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.IpAddress) ? "No disponible" : item.IpAddress)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.UserAgent) ? "No disponible" : item.UserAgent)</td>
                             <td>
                                 @if (item.Motivo == "Credenciales incorrectas")
                                 {

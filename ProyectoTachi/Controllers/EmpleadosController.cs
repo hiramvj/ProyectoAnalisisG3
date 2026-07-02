@@ -186,6 +186,18 @@ namespace ProyectoTachi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarAsistencia(AsistenciaDto dto)
         {
+            if (dto.Tipo == "ASISTENCIA")
+            {
+                dto.HoraEntrada ??= LeerHoraFormulario("HoraEntrada");
+                dto.HoraSalida ??= LeerHoraFormulario("HoraSalida");
+
+                if (!dto.HoraEntrada.HasValue)
+                    ModelState.AddModelError(nameof(dto.HoraEntrada), "La hora de entrada es requerida.");
+
+                if (!dto.HoraSalida.HasValue)
+                    ModelState.AddModelError(nameof(dto.HoraSalida), "La hora de salida es requerida.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var empleado = await _flujo.ObtenerPorIdAsync(dto.EmpleadoId);
@@ -218,6 +230,12 @@ namespace ProyectoTachi.Controllers
             }
 
             return RedirectToAction(nameof(Asistencias), new { id = dto.EmpleadoId });
+        }
+
+        private TimeSpan? LeerHoraFormulario(string campo)
+        {
+            var valor = Request.Form[campo].ToString();
+            return TimeSpan.TryParse(valor, out var hora) ? hora : null;
         }
     }
 }

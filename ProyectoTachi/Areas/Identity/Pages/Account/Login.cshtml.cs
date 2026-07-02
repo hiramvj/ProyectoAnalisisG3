@@ -135,8 +135,8 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
 
                 if (result.IsLockedOut)
                 {
-                    var ipLock = HttpContext.Connection.RemoteIpAddress?.ToString();
-                    var userAgentLock = Request.Headers["User-Agent"].ToString();
+                    var ipLock = ObtenerIpCliente();
+                    var userAgentLock = ObtenerUserAgent();
 
                     await _intentoLoginFallidoFlujo.RegistrarAsync(
                         Input.Email,
@@ -150,8 +150,8 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-                    var userAgent = Request.Headers["User-Agent"].ToString();
+                    var ip = ObtenerIpCliente();
+                    var userAgent = ObtenerUserAgent();
 
                     await _intentoLoginFallidoFlujo.RegistrarAsync(
                         Input.Email,
@@ -167,6 +167,29 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private string ObtenerIpCliente()
+        {
+            var forwardedFor = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(forwardedFor))
+            {
+                return forwardedFor.Split(',')[0].Trim();
+            }
+
+            var realIp = Request.Headers["X-Real-IP"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(realIp))
+            {
+                return realIp.Trim();
+            }
+
+            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "No disponible";
+        }
+
+        private string ObtenerUserAgent()
+        {
+            var userAgent = Request.Headers["User-Agent"].ToString();
+            return string.IsNullOrWhiteSpace(userAgent) ? "No disponible" : userAgent;
         }
     }
 }

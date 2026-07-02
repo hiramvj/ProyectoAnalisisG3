@@ -32,6 +32,7 @@
                 <h5 class="fw-bold mb-3">Registro de Venta / Pedido</h5>
 
                 <form asp-action="CrearPedido" method="post" id="frmPedido">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                     @Html.AntiForgeryToken()
 
                     <div class="row g-3 mb-2">
@@ -53,9 +54,10 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Método de Pago</label>
-                            <select class="form-select" asp-for="MetodoPagoId" asp-items="ViewBag.MetodosPago">
+                            <select class="form-select" asp-for="MetodoPagoId" asp-items="ViewBag.MetodosPago" required>
                                 <option value="">-- Seleccione --</option>
                             </select>
+                            <span asp-validation-for="MetodoPagoId" class="text-danger small"></span>
                         </div>
                     </div>
 
@@ -163,6 +165,7 @@
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
         // --- Productos JSON available for dynamic rows ---
         var productosData = @Html.Raw(productosJson);
