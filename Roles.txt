@@ -1,0 +1,5 @@
+
+Admin	      ////admin@tachi.com         /////Admin123*
+Ventas	      ////ventas@tachi.com        /////Ventas123*
+Operaciones   ////operaciones@tachi.com   /////Operaciones123*
+Gerencia      ////gerencia@tachi.com      /////Gerencia123*

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProyectoTachi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Gerencia")]
     public class CuentasPorPagarController : Controller
     {
         private readonly ICuentasPorPagarFlujo _cuentasFlujo;

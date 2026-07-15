@@ -29,6 +29,13 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 
 
 builder.Services.AddScoped<Abstracciones.Interfaces.DA.IProductoDA, DA.Implementaciones.ProductoDA>();
@@ -223,6 +230,48 @@ static async Task SeedAdminAsync(WebApplication app)
         if (!addRoleResult.Succeeded)
             throw new Exception("No se pudo asignar el rol Admin: " +
                 string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
+    }
+
+    var usuariosPorRol = new[]
+    {
+        new { Rol = "Ventas", Email = "ventas@tachi.com", Password = "Ventas123*" },
+        new { Rol = "Operaciones", Email = "operaciones@tachi.com", Password = "Operaciones123*" },
+        new { Rol = "Gerencia", Email = "gerencia@tachi.com", Password = "Gerencia123*" }
+    };
+
+    foreach (var cuenta in usuariosPorRol)
+    {
+        if (!await roleManager.RoleExistsAsync(cuenta.Rol))
+        {
+            var crearRol = await roleManager.CreateAsync(new IdentityRole(cuenta.Rol));
+            if (!crearRol.Succeeded)
+                throw new Exception($"No se pudo crear el rol {cuenta.Rol}: " +
+                    string.Join(", ", crearRol.Errors.Select(e => e.Description)));
+        }
+
+        var usuario = await userManager.FindByEmailAsync(cuenta.Email);
+        if (usuario == null)
+        {
+            usuario = new IdentityUser
+            {
+                UserName = cuenta.Email,
+                Email = cuenta.Email,
+                EmailConfirmed = true
+            };
+
+            var crearUsuario = await userManager.CreateAsync(usuario, cuenta.Password);
+            if (!crearUsuario.Succeeded)
+                throw new Exception($"No se pudo crear el usuario {cuenta.Email}: " +
+                    string.Join(", ", crearUsuario.Errors.Select(e => e.Description)));
+        }
+
+        if (!await userManager.IsInRoleAsync(usuario, cuenta.Rol))
+        {
+            var asignarRol = await userManager.AddToRoleAsync(usuario, cuenta.Rol);
+            if (!asignarRol.Succeeded)
+                throw new Exception($"No se pudo asignar el rol {cuenta.Rol} a {cuenta.Email}: " +
+                    string.Join(", ", asignarRol.Errors.Select(e => e.Description)));
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mail;
 using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,8 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }
 
+        public bool SolicitudProcesada { get; private set; }
+
         public class InputModel
         {
             [Required(ErrorMessage = "El correo electrónico es requerido.")]
@@ -33,8 +36,9 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
             public string Email { get; set; }
         }
 
-        public void OnGet()
+        public void OnGet(bool enviado = false)
         {
+            SolicitudProcesada = enviado;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -48,7 +52,7 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
             if (user == null)
             {
                 // No revelar que el usuario no existe
-                return RedirectToPage("./ForgotPasswordConfirmation");
+                return RedirectToPage("./ForgotPassword", new { enviado = true });
             }
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -60,12 +64,21 @@ namespace ProyectoTachi.Areas.Identity.Pages.Account
                 values: new { area = "Identity", code },
                 protocol: Request.Scheme);
 
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                "Restablecer contraseña - Tachi Distribuidora",
-                $"Para restablecer su contraseña, haga clic en el siguiente enlace: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Restablecer contraseña</a>");
+            try
+            {
+                await _emailSender.SendEmailAsync(
+                    Input.Email,
+                    "Restablecer contraseña - Tachi Distribuidora",
+                    $"Para restablecer su contraseña, haga clic en el siguiente enlace: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Restablecer contraseña</a>");
+            }
+            catch (SmtpException)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "No fue posible enviar el correo. Verifica la configuración de la cuenta remitente e inténtalo nuevamente.");
+                return Page();
+            }
 
-            return RedirectToPage("./ForgotPasswordConfirmation");
+            return RedirectToPage("./ForgotPassword", new { enviado = true });
         }
     }
 }

@@ -1,11 +1,13 @@
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ProyectoTachi.Controllers
 {
+    [Authorize(Roles = "Admin,Gerencia")]
     public class ReportesController : Controller
     {
         private readonly IReporteFlujo _reporteFlujo;

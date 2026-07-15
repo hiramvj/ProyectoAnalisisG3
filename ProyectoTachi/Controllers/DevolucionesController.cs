@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoTachi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Ventas")]
     public class DevolucionesController : Controller
     {
         private readonly IDevolucionVentaFlujo _devolucionFlujo;

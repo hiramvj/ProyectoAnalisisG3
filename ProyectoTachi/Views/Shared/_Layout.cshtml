@@ -35,14 +35,17 @@
                     <span>Dashboard</span>
                 </a>
 
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Ventas"))
                 {
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Productos" ? "active" : "")"
                        asp-controller="Productos" asp-action="Index">
                         <i class="fa-solid fa-boxes-stacked"></i>
                         <span>Inventario</span>
                     </a>
+                }
 
+                @if (User.IsInRole("Admin") || User.IsInRole("Ventas"))
+                {
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clientes" ? "active" : "")"
                        asp-controller="Clientes" asp-action="Index">
                         <i class="fa-solid fa-users"></i>
@@ -63,6 +66,10 @@
                         <i class="fa-solid fa-rotate-left"></i>
                         <span>Devoluciones</span>
                     </a>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Operaciones"))
+                {
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transportistas" ? "active" : "")"
                        asp-controller="Transportistas" asp-action="Index">
                         <i class="fa-solid fa-id-card"></i>
@@ -79,18 +86,29 @@
                         <i class="fa-solid fa-truck"></i>
                         <span>Proveedores</span>
                     </a>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
                     <a class="tachi-link"
                        asp-controller="Empleados"
                        asp-action="Index">
                         <i class="fa-solid fa-user-tie"></i>
                         <span>Empleados</span>
                     </a>
-                    
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Operaciones"))
+                {
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Compras" ? "active" : "")"
                        asp-controller="Compras" asp-action="Index">
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span>Órdenes de Compra</span>
                     </a>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Gerencia"))
+                {
                     <a class="tachi-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CuentasPorPagar" ? "active" : "")"
                        asp-controller="CuentasPorPagar" asp-action="Index">
                         <i class="fa-solid fa-file-invoice-dollar"></i>

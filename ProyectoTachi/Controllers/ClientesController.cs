@@ -1,9 +1,11 @@
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoTachi.Controllers
 {
+    [Authorize(Roles = "Admin,Ventas")]
     public class ClientesController : Controller
     {
         private readonly IClienteFlujo _flujo;

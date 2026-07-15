@@ -1,12 +1,14 @@
 ﻿using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using DA.Contexto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoTachi.Controllers
 {
+    [Authorize(Roles = "Admin,Ventas")]
     public class ProductosController : Controller
     {
         private readonly IProductoFlujo _flujo;

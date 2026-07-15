@@ -11,7 +11,7 @@ using QuestPDF.Infrastructure;
 
 namespace ProyectoTachi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Ventas")]
     public class VentasController : Controller
     {
         private readonly IPedidoVentaFlujo _pedidoFlujo;

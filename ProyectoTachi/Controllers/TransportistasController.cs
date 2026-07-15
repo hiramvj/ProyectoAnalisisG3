@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoTachi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Operaciones")]
     public class TransportistasController : Controller
     {
         private readonly ITransportistaFlujo _flujo;

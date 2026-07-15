@@ -4,24 +4,31 @@ using Microsoft.AspNetCore.Authorization;
 using ProyectoTachi.Models;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using DA.Contexto;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoTachi.Controllers
 {
+    [Authorize(Roles = "Admin,Ventas,Operaciones,Gerencia")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductoFlujo _productoFlujo;
         private readonly IClienteFlujo _clienteFlujo;
+        private readonly AppDbContext _db;
 
         public HomeController(ILogger<HomeController> logger, 
             IProductoFlujo productoFlujo, 
-            IClienteFlujo clienteFlujo)
+            IClienteFlujo clienteFlujo,
+            AppDbContext db)
         {
             _logger = logger;
             _productoFlujo = productoFlujo;
             _clienteFlujo = clienteFlujo;
+            _db = db;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
@@ -49,10 +56,42 @@ namespace ProyectoTachi.Controllers
                 ClientesActivos = clientesActivos.Count
             };
 
+            var hoy = DateTime.UtcNow.Date;
+            var manana = hoy.AddDays(1);
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            if (User.IsInRole("Admin") || User.IsInRole("Ventas"))
+            {
+                model.PedidosHoy = await _db.PedidoVentas.CountAsync(p => p.FechaPedido >= hoy && p.FechaPedido < manana);
+                model.FacturasHoy = await _db.Facturas.CountAsync(f => f.FechaEmision >= hoy && f.FechaEmision < manana);
+                model.VentasHoy = await _db.Facturas
+                    .Where(f => f.FechaEmision >= hoy && f.FechaEmision < manana)
+                    .SumAsync(f => (decimal?)f.Total) ?? 0;
+            }
+
+            if (User.IsInRole("Admin") || User.IsInRole("Operaciones"))
+            {
+                model.OrdenesPendientes = await _db.OrdenesCompra
+                    .CountAsync(o => o.Estado != "COMPLETADA" && o.Estado != "CANCELADA");
+                model.ProveedoresActivos = await _db.Proveedores.CountAsync(p => p.Activo);
+                model.RutasActivas = await _db.RutasEntrega
+                    .CountAsync(r => r.Estado != "COMPLETADA" && r.Estado != "CANCELADA");
+            }
+
+            if (User.IsInRole("Admin") || User.IsInRole("Gerencia"))
+            {
+                model.VentasMes = await _db.Facturas
+                    .Where(f => f.FechaEmision >= inicioMes && f.FechaEmision < manana)
+                    .SumAsync(f => (decimal?)f.Total) ?? 0;
+                model.SaldoPorPagar = await _db.CuentasPorPagar.SumAsync(c => (decimal?)c.SaldoPendiente) ?? 0;
+                model.CuentasVencidas = await _db.CuentasPorPagar
+                    .CountAsync(c => c.SaldoPendiente > 0 && c.FechaVencimiento < hoy);
+            }
+
             return View(model);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,Gerencia")]
         public async Task<IActionResult> InformeFinanciero()
         {
             // Usamos _productoFlujo que ya está inyectado en tu controlador
@@ -84,12 +123,14 @@ namespace ProyectoTachi.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [AllowAnonymous]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Gerencia")]
         public async Task<IActionResult> GenerarNota(NotaContableDto nota)
         {
             if (nota.Monto <= 0)

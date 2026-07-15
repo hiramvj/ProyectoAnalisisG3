@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoTachi.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Operaciones")]
     public class ComprasController : Controller
     {
         private readonly IOrdenCompraFlujo _ordenFlujo;

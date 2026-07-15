@@ -5,75 +5,41 @@
 
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
+    var esAdmin = User.IsInRole("Admin");
+    var esVentas = User.IsInRole("Ventas");
+    var esOperaciones = User.IsInRole("Operaciones");
+    var esGerencia = User.IsInRole("Gerencia");
+    var nombrePanel = esAdmin ? "Administración" : esVentas ? "Ventas e Inventario" : esOperaciones ? "Operaciones" : "Gerencia";
+
     <div class="container-fluid py-4">
         <div class="row mb-4">
             <div class="col-12">
                 <h1 class="display-5 fw-bold text-primary">Panel de Control</h1>
-                <p class="lead text-muted">Resumen general de la ferretería.</p>
+                <p class="lead text-muted">Panel de @nombrePanel.</p>
             </div>
         </div>
 
-        <!-- Metrics Cards -->
         <div class="row g-4 mb-5">
-            <!-- Total Products -->
-            <div class="col-md-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted text-uppercase">Total Productos</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h2 class="card-title fw-bold mb-0">@Model.TotalProductos</h2>
-                            <span class="badge bg-primary rounded-pill"><i class="bi bi-box-seam"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @if (esAdmin || esVentas)
+            {
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Ventas de hoy</h6><h2 class="fw-bold text-success">₡@Model.VentasHoy.ToString("N2")</h2><small>Facturación acumulada del día</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Pedidos de hoy</h6><h2 class="fw-bold">@Model.PedidosHoy</h2><small>@Model.FacturasHoy facturados</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm border-start border-4 @(Model.ProductosBajoStock > 0 ? "border-danger" : "border-success")"><div class="card-body"><h6 class="text-muted text-uppercase">Productos bajo stock</h6><h2 class="fw-bold @(Model.ProductosBajoStock > 0 ? "text-danger" : "text-success")">@Model.ProductosBajoStock</h2><small>De @Model.TotalProductos productos registrados</small></div></div></div>
+            }
 
-            <!-- Low Stock -->
-            <div class="col-md-3">
-                <div class="card h-100 border-0 shadow-sm border-start border-4 @(Model.ProductosBajoStock > 0 ? "border-danger" : "border-success")">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted text-uppercase">Bajo Stock</h6>
-                         <div class="d-flex align-items-center justify-content-between">
-                            <h2 class="card-title fw-bold mb-0 @(Model.ProductosBajoStock > 0 ? "text-danger" : "text-success")">@Model.ProductosBajoStock</h2>
-                            <span class="badge bg-danger rounded-pill"><i class="bi bi-exclamation-triangle"></i></span>
-                        </div>
-                        @if (Model.ProductosBajoStock > 0)
-                        {
-                            <small class="text-danger mt-2 d-block">Requiere atención</small>
-                        }
-                        else
-                        {
-                            <small class="text-success mt-2 d-block">Inventario saludable</small>
-                        }
-                    </div>
-                </div>
-            </div>
+            @if (esAdmin || esOperaciones)
+            {
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Órdenes pendientes</h6><h2 class="fw-bold text-warning">@Model.OrdenesPendientes</h2><small>Compras por completar</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Rutas activas</h6><h2 class="fw-bold text-primary">@Model.RutasActivas</h2><small>Entregas en planificación o curso</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Proveedores activos</h6><h2 class="fw-bold">@Model.ProveedoresActivos</h2><small>Disponibles para abastecimiento</small></div></div></div>
+            }
 
-            <!-- Total Clients -->
-            <div class="col-md-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted text-uppercase">Clientes Registrados</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h2 class="card-title fw-bold mb-0">@Model.TotalClientes</h2>
-                            <span class="badge bg-info rounded-pill text-dark"><i class="bi bi-people"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Active Clients -->
-            <div class="col-md-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted text-uppercase">Clientes Activos</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <h2 class="card-title fw-bold mb-0">@Model.ClientesActivos</h2>
-                            <span class="badge bg-success rounded-pill"><i class="bi bi-person-check"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @if (esAdmin || esGerencia)
+            {
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Ventas del mes</h6><h2 class="fw-bold text-success">₡@Model.VentasMes.ToString("N2")</h2><small>Ingresos facturados este mes</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h6 class="text-muted text-uppercase">Saldo por pagar</h6><h2 class="fw-bold text-danger">₡@Model.SaldoPorPagar.ToString("N2")</h2><small>Compromisos con proveedores</small></div></div></div>
+                <div class="col-md-4"><div class="card h-100 border-0 shadow-sm border-start border-4 @(Model.CuentasVencidas > 0 ? "border-danger" : "border-success")"><div class="card-body"><h6 class="text-muted text-uppercase">Cuentas vencidas</h6><h2 class="fw-bold @(Model.CuentasVencidas > 0 ? "text-danger" : "text-success")">@Model.CuentasVencidas</h2><small>Requieren seguimiento financiero</small></div></div></div>
+            }
         </div>
 
         <!-- Quick Actions -->
@@ -81,6 +47,8 @@
             <div class="col-12">
                 <h4 class="mb-3 text-secondary">Accesos Rápidos</h4>
             </div>
+            @if (esAdmin || esVentas)
+            {
             <div class="col-md-6 col-lg-4 mb-3">
                 <a asp-controller="Productos" asp-action="Index" class="btn btn-outline-primary btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
                     <div class="d-flex align-items-center">
@@ -103,6 +71,51 @@
                     </div>
                 </a>
             </div>
+            <div class="col-md-6 col-lg-4 mb-3">
+                <a asp-controller="Ventas" asp-action="Index" class="btn btn-outline-info btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                    <div class="d-flex align-items-center">
+                        <div class="fs-1 me-3"><i class="bi bi-receipt"></i></div>
+                        <div>
+                            <div class="fw-bold">Registrar Venta</div>
+                            <small class="text-muted">Crear pedidos y facturas</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            }
+
+            @if (esAdmin || esOperaciones)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a asp-controller="Compras" asp-action="Index" class="btn btn-outline-warning btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                        <div class="d-flex align-items-center"><div class="fs-1 me-3"><i class="bi bi-cart"></i></div><div><div class="fw-bold">Órdenes de Compra</div><small class="text-muted">Gestionar abastecimiento</small></div></div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a asp-controller="Rutas" asp-action="Index" class="btn btn-outline-primary btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                        <div class="d-flex align-items-center"><div class="fs-1 me-3"><i class="bi bi-truck"></i></div><div><div class="fw-bold">Rutas y Entregas</div><small class="text-muted">Coordinar la distribución</small></div></div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a asp-controller="Proveedores" asp-action="Index" class="btn btn-outline-secondary btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                        <div class="d-flex align-items-center"><div class="fs-1 me-3"><i class="bi bi-building"></i></div><div><div class="fw-bold">Proveedores</div><small class="text-muted">Administrar proveedores</small></div></div>
+                    </a>
+                </div>
+            }
+
+            @if (esAdmin || esGerencia)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a asp-controller="Reportes" asp-action="Dashboard" class="btn btn-outline-success btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                        <div class="d-flex align-items-center"><div class="fs-1 me-3"><i class="bi bi-graph-up"></i></div><div><div class="fw-bold">Métricas Gerenciales</div><small class="text-muted">Consultar indicadores</small></div></div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <a asp-controller="CuentasPorPagar" asp-action="Index" class="btn btn-outline-danger btn-lg w-100 py-4 text-start shadow-sm hover-shadow transition">
+                        <div class="d-flex align-items-center"><div class="fs-1 me-3"><i class="bi bi-cash-stack"></i></div><div><div class="fw-bold">Cuentas por Pagar</div><small class="text-muted">Control financiero</small></div></div>
+                    </a>
+                </div>
+            }
         </div>
     </div>
 }
