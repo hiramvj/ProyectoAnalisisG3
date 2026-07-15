@@ -1,0 +1,52 @@
+@model ProyectoTachi.Models.NotificationsViewModel
+
+<div class="dropdown">
+    <button class="tachi-icon-btn position-relative" type="button" id="notificationsDropdown"
+            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+            title="Notificaciones" aria-label="Abrir notificaciones">
+        <i class="fa-regular fa-bell"></i>
+        @if (Model.Total > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @(Model.Total > 9 ? "9+" : Model.Total)
+                <span class="visually-hidden">notificaciones pendientes</span>
+            </span>
+        }
+    </button>
+
+    <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 notification-menu" aria-labelledby="notificationsDropdown">
+        <div class="d-flex justify-content-between align-items-center px-3 py-3 border-bottom">
+            <strong>Notificaciones</strong>
+            <span class="badge bg-primary rounded-pill">@Model.Total</span>
+        </div>
+
+        @if (Model.Items.Count == 0)
+        {
+            <div class="text-center text-muted px-4 py-4">
+                <i class="fa-regular fa-circle-check fa-2x text-success mb-2"></i>
+                <div>No hay notificaciones nuevas.</div>
+            </div>
+        }
+        else
+        {
+            <div class="notification-list">
+                @foreach (var item in Model.Items)
+                {
+                    <a class="dropdown-item d-flex gap-3 px-3 py-3 border-bottom" asp-controller="@item.Controller" asp-action="@item.Action">
+                        <i class="@item.Icon @item.ColorClass mt-1"></i>
+                        <span class="text-wrap">
+                            <span class="d-block fw-semibold">@item.Title</span>
+                            <small class="text-muted">@item.Detail</small>
+                        </span>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .notification-menu { width: min(390px, 92vw); }
+    .notification-list { max-height: 420px; overflow-y: auto; }
+    .notification-list .dropdown-item { white-space: normal; }
+</style>

@@ -155,9 +155,7 @@
                 </div>
 
                 <div class="tachi-topbar-right">
-                    <button class="tachi-icon-btn" type="button" title="Notificaciones">
-                        <i class="fa-regular fa-bell"></i>
-                    </button>
+                    @await Component.InvokeAsync("Notifications")
 
                     <!-- Login / Logout (Identity) -->
                     <partial name="_LoginPartial" />
