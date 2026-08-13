@@ -2,6 +2,23 @@
 
 @{
     ViewData["Title"] = "Historial de Ventas";
+    var pedidosFacturados = ViewBag.PedidosFacturados as HashSet<int> ?? new HashSet<int>();
+}
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i> @TempData["Ok"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-1"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -119,7 +136,7 @@
                     <th>Cliente</th>
                     <th style="width:180px;">Método Pago</th>
                     <th style="width:140px;">Estado</th>
-                    <th style="width:180px;">Acciones</th>
+                    <th style="width:290px;">Acciones</th>
                 </tr>
             </thead>
 
@@ -164,6 +181,23 @@
                                    class="btn btn-sm btn-warning">
                                     Editar
                                 </a>
+
+                                @if (!pedidosFacturados.Contains(x.PedidoVentaId) && x.Estado != "CANCELADA")
+                                {
+                                    <form asp-action="Facturar" method="post" class="d-inline">
+                                        <input type="hidden" name="pedidoVentaId" value="@x.PedidoVentaId" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-success"
+                                                title="Generar factura"
+                                                onclick="return confirm('¿Desea facturar el pedido #@x.NumeroPedido?');">
+                                            <i class="bi bi-receipt me-1"></i> Facturar
+                                        </button>
+                                    </form>
+                                }
+                                else if (pedidosFacturados.Contains(x.PedidoVentaId))
+                                {
+                                    <span class="badge bg-success">Facturado</span>
+                                }
 
                                 <a asp-action="NotaAjuste"
                                    asp-route-id="@x.PedidoVentaId"

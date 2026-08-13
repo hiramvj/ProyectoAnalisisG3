@@ -23,18 +23,18 @@
     </div>
 }
 
-<!-- Paso 1: Seleccionar factura -->
+<!-- Paso 1: Seleccionar pedido facturado -->
 <div class="card shadow-sm mb-3">
     <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fa-solid fa-file-invoice me-2"></i>Paso 1: Seleccionar Factura</h5>
+        <h5 class="mb-0"><i class="fa-solid fa-file-invoice me-2"></i>Paso 1: Seleccionar Pedido</h5>
     </div>
     <div class="card-body">
         <form method="get" asp-action="Crear">
             <div class="row g-3 align-items-end">
                 <div class="col-md-8">
-                    <label class="form-label">Factura</label>
+                    <label class="form-label">Pedido facturado</label>
                     <select name="facturaId" class="form-select" asp-items="ViewBag.Facturas">
-                        <option value="">-- Seleccione una factura --</option>
+                        <option value="">-- Seleccione un pedido --</option>
                     </select>
                 </div>
                 <div class="col-md-4">

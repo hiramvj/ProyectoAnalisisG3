@@ -128,16 +128,21 @@ namespace ProyectoTachi.Controllers
         {
             try
             {
-                var facturas = await _db.Facturas
-                    .AsNoTracking()
-                    .Where(f => f.Estado == "EMITIDA" || f.Estado == "DEVOLUCION_PARCIAL")
-                    .OrderByDescending(f => f.NumeroFactura)
-                    .Select(f => new
+                var facturas = await (
+                    from factura in _db.Facturas.AsNoTracking()
+                    join pedido in _db.PedidoVentas.AsNoTracking()
+                        on factura.PedidoVentaId equals pedido.PedidoVentaId
+                    where factura.Estado == "EMITIDA" ||
+                          factura.Estado == "Emitida" ||
+                          factura.Estado == "DEVOLUCION_PARCIAL" ||
+                          factura.Estado == "Devolucion_Parcial"
+                    orderby pedido.NumeroPedido descending
+                    select new
                     {
-                        f.FacturaId,
-                        Display = "Factura #" + f.NumeroFactura
-                    })
-                    .ToListAsync();
+                        factura.FacturaId,
+                        Display = "Pedido #" + pedido.NumeroPedido +
+                                  " - Factura #" + factura.NumeroFactura
+                    }).ToListAsync();
 
                 ViewBag.Facturas = new SelectList(facturas, "FacturaId", "Display", seleccionada);
             }

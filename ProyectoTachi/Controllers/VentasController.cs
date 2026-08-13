@@ -71,6 +71,17 @@ namespace ProyectoTachi.Controllers
                 .Take(pageSize)
                 .ToList();
 
+            var idsPedidosPagina = listaPaginada
+                .Select(x => x.PedidoVentaId)
+                .ToList();
+
+            ViewBag.PedidosFacturados = (await _db.Facturas
+                .AsNoTracking()
+                .Where(f => idsPedidosPagina.Contains(f.PedidoVentaId))
+                .Select(f => f.PedidoVentaId)
+                .ToListAsync())
+                .ToHashSet();
+
             ViewBag.PaginaActual = page;
             ViewBag.TotalPaginas = totalPaginas;
 
@@ -138,7 +149,7 @@ namespace ProyectoTachi.Controllers
             {
                 var facturaId = await _facturaFlujo.CrearDesdePedidoAsync(pedidoVentaId);
                 TempData["Ok"] = $"Factura generada: {facturaId}";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Historial));
             }
             catch (Exception ex)
             {
@@ -146,7 +157,7 @@ namespace ProyectoTachi.Controllers
                     ?? ex.GetBaseException().Message
                     ?? ex.Message;
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Historial));
             }
         }
         [HttpGet]
